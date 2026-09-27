@@ -1,0 +1,19 @@
+{
+  "name": "proxy-demo",
+  "version": "2.5.0",
+  "private": true,
+  "description": "ProxyCeptor Interactive Demo & Sandbox — Live REST API manipulation powered by ProxyCeptor SDK",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "preview": "vite preview",
+    "deploy": "node scripts/deploy.mjs",
+    "commit": "node scripts/commit.mjs",
+    "deployment": "node scripts/deployments.mjs"
+  },
+  "devDependencies": {
+    "vite": "^5.4.14"
+  }
+}
