@@ -2,10 +2,10 @@
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 (function (root, factory) {
   var isBrowser = typeof window !== 'undefined';
-  var existing = isBrowser && window.SuperDebug || typeof root !== 'undefined' && root && root.SuperDebug;
+  var existing = isBrowser && window.ProxyCeptor || typeof root !== 'undefined' && root && root.SuperDebug;
   if (existing) {
     if (typeof console !== 'undefined' && console.warn) {
-      console.warn('[SuperDebug] window.SuperDebug namespace already exists â€” discarding duplicate script execution.');
+      console.warn('[SuperDebug] window.ProxyCeptor namespace already exists â€” discarding duplicate script execution.');
     }
     if ((typeof module === "undefined" ? "undefined" : _typeof(module)) === 'object' && module.exports) {
       module.exports = existing;
@@ -24,13 +24,13 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     root.SuperDebug = exp;
   }
   if (isBrowser) {
-    window.SuperDebug = exp;
+    window.ProxyCeptor = exp;
   }
 })(typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  if (typeof window !== 'undefined' && window.SuperDebug) {
-    return window.SuperDebug;
+  if (typeof window !== 'undefined' && window.ProxyCeptor) {
+    return window.ProxyCeptor;
   }
   var __SDK_DEFAULT__;
   var TAG = '[SuperDebugSDK]';
@@ -542,7 +542,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
               }
               try {
                 setRequestHeader.call(self, op.name, val);
-              } catch (e) {}
+              } catch (e) { }
             });
           }
         });
@@ -553,7 +553,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
             if (apiKey) {
               setRequestHeader.call(self, 'x-sdm-api-key', apiKey);
             }
-          } catch (e) {}
+          } catch (e) { }
         }
         var outBody = body;
         var xhrMethod = String(sdm.method || 'GET').toUpperCase();
@@ -650,7 +650,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     try {
       var stored = typeof window !== 'undefined' && localStorage.getItem('sdm_server_url');
       if (stored) return stored;
-    } catch (e) {}
+    } catch (e) { }
     if (__BAKED_SERVER_URL__ && __BAKED_SERVER_URL__.indexOf('__') !== 0) {
       return __BAKED_SERVER_URL__;
     }
@@ -902,7 +902,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
   SuperDebug.DEFAULT_SERVER_URL = DEFAULT_SERVER_URL;
   SuperDebug.version = SDK_VERSION;
   if (typeof window !== 'undefined') {
-    window.SuperDebug = SuperDebug;
+    window.ProxyCeptor = SuperDebug;
   }
   __SDK_DEFAULT__ = SuperDebug;
   return __SDK_DEFAULT__;
