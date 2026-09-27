@@ -26,7 +26,6 @@ export const CAPABILITIES = [
     },
     body: null,
     ruleSummary: '*.m3u8 or /todos/1 -> Rewrite to staging-cdn.internal or /todos/2',
-    simulatedDiffTokens: ['staging', 'redirect', 'rewrite', 'title'],
     localRule: {
       match: { urlPattern: '*todos/1*' },
       request: { urlRewrite: { find: 'todos/1', replace: 'todos/2' } }
@@ -52,7 +51,6 @@ export const CAPABILITIES = [
       timestamp: 1726789123
     },
     ruleSummary: 'Request Body Action: Deep Merge QA Flags (qa_test_run, force_ab_variant)',
-    simulatedDiffTokens: ['qa_test_run', 'force_ab_variant', 'debug_mode_enabled'],
     localRule: {
       match: { urlPattern: '*posts*' },
       request: {
@@ -85,7 +83,6 @@ export const CAPABILITIES = [
     },
     body: null,
     ruleSummary: 'Request Header Action: Inject Authorization + X-Tenant-Id',
-    simulatedDiffTokens: ['bearer', 'x-tenant-id', 'x-proxyceptor'],
     localRule: {
       match: { urlPattern: '*users/1*' },
       request: {
@@ -117,7 +114,6 @@ export const CAPABILITIES = [
       payment_gateway: 'PulsePay UPI'
     },
     ruleSummary: 'Response Body Action: Replace with Mock JSON (Status 504 Gateway Timeout)',
-    simulatedDiffTokens: ['bank_server_timeout', 'failure', 'mock_source'],
     localRule: {
       match: { urlPattern: '*posts*' },
       response: {
@@ -150,7 +146,6 @@ export const CAPABILITIES = [
     },
     body: null,
     ruleSummary: 'Response Body Action: Deep Merge Delta JSON (is_vip: true, wallet: 5000)',
-    simulatedDiffTokens: ['is_vip', 'wallet_balance', 'subscription_tier'],
     localRule: {
       match: { urlPattern: '*users/2*' },
       response: {
@@ -181,7 +176,6 @@ export const CAPABILITIES = [
     },
     body: null,
     ruleSummary: 'Execute JS: data.promo = "QA_FREE"; data.title = "[TRANSFORMED] " + data.title;',
-    simulatedDiffTokens: ['transformed', 'qa_free', 'promo'],
     localRule: {
       match: { urlPattern: '*albums/1*' },
       response: {
@@ -207,7 +201,6 @@ export const CAPABILITIES = [
     },
     body: null,
     ruleSummary: 'Response Header Action: Set Access-Control-Allow-Origin: * + no-cache',
-    simulatedDiffTokens: ['access-control', 'cors', 'no-store'],
     localRule: {
       match: { urlPattern: '*comments/1*' },
       response: {
@@ -236,7 +229,6 @@ export const CAPABILITIES = [
     },
     body: null,
     ruleSummary: 'Traffic Action: Add 2500ms Artificial Latency Before Returning',
-    simulatedDiffTokens: ['delay', 'latency', 'sleep'],
     localRule: {
       match: { urlPattern: '*photos/1*' },
       request: { delay: 2500 }
@@ -259,7 +251,6 @@ export const CAPABILITIES = [
       unit: 'banner_home'
     },
     ruleSummary: 'Traffic Action: Block Request (DNR & Fetch In-Memory Filter)',
-    simulatedDiffTokens: ['blocked', 'err_blocked'],
     localRule: {
       match: { urlPattern: '*posts*' },
       block: true
@@ -279,7 +270,6 @@ export const CAPABILITIES = [
     },
     body: null,
     ruleSummary: 'Response Action: Override Status Code to 401 Unauthorized',
-    simulatedDiffTokens: ['401', 'unauthorized', 'session_expired'],
     localRule: {
       match: { urlPattern: '*todos/2*' },
       response: {
@@ -552,6 +542,7 @@ function renderCapabilityDetails() {
 }
 
 // ============================================================
+// ============================================================
 // REAL NETWORK EXECUTION & RESPONSE CAPTURE
 // ============================================================
 async function executeRequest() {
@@ -564,7 +555,7 @@ async function executeRequest() {
   state.isExecuting = true;
   if (executeBtn) {
     executeBtn.disabled = true;
-    executeBtn.innerHTML = '<span>⚡</span><span>Intercepting in memory...</span>';
+    executeBtn.innerHTML = '<span>⚡</span><span>Executing wire call...</span>';
   }
 
   const resStatusBadge = $('res-status-badge');
@@ -572,9 +563,19 @@ async function executeRequest() {
   const resHeadersDisplay = $('res-headers-display');
   const resFooter = $('res-footer-text');
 
+  // Immediately clear Response JSON and Response Headers while waiting for live wire data
   if (resStatusBadge) {
     resStatusBadge.textContent = 'EXECUTING...';
     resStatusBadge.className = 'mac-win-badge badge-neon';
+  }
+  if (resBodyDisplay) {
+    resBodyDisplay.innerHTML = '<span class="tok-com">// Fetching real wire response...</span>';
+  }
+  if (resHeadersDisplay) {
+    resHeadersDisplay.innerHTML = '<span class="tok-com">// Waiting for live response headers...</span>';
+  }
+  if (resFooter) {
+    resFooter.textContent = 'Transmitting request across network...';
   }
 
   const t0 = performance.now();
@@ -589,50 +590,42 @@ async function executeRequest() {
 
     const elapsedMs = Math.round(performance.now() - t0);
 
-    // Update Status Badge
+    // Update Status Badge with real wire status code
     if (resStatusBadge) {
       resStatusBadge.textContent = `${result.status} ${result.statusText || 'OK'} (${elapsedMs}ms)`;
       resStatusBadge.className = result.status >= 400 ? 'mac-win-badge badge-gray' : 'mac-win-badge badge-neon';
     }
 
-    // Top: Response Body
+    // Top: Real Wire Response Body (Pure JSON, no fake tags)
     if (resBodyDisplay) {
-      resBodyDisplay.innerHTML = formatJsonHighlight(result.data, cap.simulatedDiffTokens);
+      resBodyDisplay.innerHTML = formatJsonHighlight(result.data);
     }
 
-    // Bottom: Response Headers
+    // Bottom: Real Wire Response Headers
     if (resHeadersDisplay) {
       resHeadersDisplay.innerHTML = formatHeadersHighlight(result.headers);
     }
 
     if (resFooter) {
-      resFooter.innerHTML = `✓ Real request executed via ${transport.toUpperCase()} in ${elapsedMs}ms · Payload size: ${result.byteLength || 0} bytes`;
+      resFooter.innerHTML = `✓ Real wire response received via ${transport.toUpperCase()} in ${elapsedMs}ms · Payload size: ${result.byteLength || 0} bytes`;
     }
   } catch (err) {
     const elapsedMs = Math.round(performance.now() - t0);
     if (resStatusBadge) {
-      resStatusBadge.textContent = cap.id === 'perf-block' ? 'BLOCKED (0ms)' : `ERROR (${elapsedMs}ms)`;
+      resStatusBadge.textContent = `ERROR (${elapsedMs}ms)`;
       resStatusBadge.className = 'mac-win-badge badge-gray';
     }
 
     if (resBodyDisplay) {
-      if (cap.id === 'perf-block') {
-        resBodyDisplay.innerHTML = formatJsonHighlight({
-          status: 'blocked',
-          reason: 'ProxyCeptor Block Rule Matched (*posts*)',
-          action_taken: 'Request dropped before socket creation'
-        }, ['blocked', 'rule']);
-      } else {
-        resBodyDisplay.textContent = `Error: ${err.message || err}`;
-      }
+      resBodyDisplay.textContent = `Network Error: ${err.message || err}`;
     }
 
     if (resHeadersDisplay) {
-      resHeadersDisplay.innerHTML = '<span class="tok-com">(Request dropped before socket connection creation)</span>';
+      resHeadersDisplay.innerHTML = '<span class="tok-com">(No response headers received due to network failure)</span>';
     }
 
     if (resFooter) {
-      resFooter.innerHTML = `⚠️ Intercepted: ${err.message || 'Request blocked by client rule'}`;
+      resFooter.innerHTML = `⚠️ Error: ${err.message || 'Network request failed'}`;
     }
   } finally {
     state.isExecuting = false;
@@ -656,22 +649,6 @@ async function executeFetch(url, method, headers, body) {
   if (res.headers && typeof res.headers.forEach === 'function') {
     res.headers.forEach((val, key) => {
       headerMap[key] = val;
-    });
-  }
-
-  if (!headerMap['content-type'] && res.headers && res.headers.get) {
-    const ct = res.headers.get('content-type');
-    if (ct) headerMap['content-type'] = ct;
-  }
-  if (!headerMap['content-type']) {
-    headerMap['content-type'] = 'application/json; charset=utf-8';
-  }
-
-  // Show intercepted/injected response headers if active rule modified them
-  const activeCap = getActiveCapability();
-  if (activeCap && activeCap.localRule && activeCap.localRule.response && Array.isArray(activeCap.localRule.response.headers)) {
-    activeCap.localRule.response.headers.forEach((h) => {
-      headerMap[h.name.toLowerCase()] = h.value;
     });
   }
 
@@ -702,7 +679,7 @@ function executeXhr(url, method, headers, body) {
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4) {
         if (xhr.status === 0) {
-          return reject(new Error('Blocked or connection aborted'));
+          return reject(new Error('Connection aborted or blocked'));
         }
 
         const rawHeaders = xhr.getAllResponseHeaders() || '';
@@ -717,17 +694,6 @@ function executeXhr(url, method, headers, body) {
         try {
           data = JSON.parse(text);
         } catch (e) {}
-
-        if (!headerMap['content-type']) {
-          headerMap['content-type'] = 'application/json; charset=utf-8';
-        }
-
-        const activeCap = getActiveCapability();
-        if (activeCap && activeCap.localRule && activeCap.localRule.response && Array.isArray(activeCap.localRule.response.headers)) {
-          activeCap.localRule.response.headers.forEach((h) => {
-            headerMap[h.name.toLowerCase()] = h.value;
-          });
-        }
 
         resolve({
           status: xhr.status,
@@ -749,9 +715,9 @@ function executeXhr(url, method, headers, body) {
 }
 
 // ============================================================
-// FORMATTERS & HIGHLIGHTERS
+// FORMATTERS & HIGHLIGHTERS (PURE WIRE SYNTAX, NO FAKE TAGS)
 // ============================================================
-function formatJsonHighlight(obj, diffTokens = []) {
+function formatJsonHighlight(obj) {
   if (obj === null || obj === undefined) return '<span class="tok-null">null</span>';
   if (typeof obj === 'string') {
     try {
@@ -765,32 +731,24 @@ function formatJsonHighlight(obj, diffTokens = []) {
   const lines = jsonStr.split('\n');
 
   return lines.map((line) => {
-    const isDiff = diffTokens.some((tok) => line.toLowerCase().includes(tok.toLowerCase()));
-    let formatted = escapeHtml(line)
+    const formatted = escapeHtml(line)
       .replace(/"([^"]+)":/g, '<span class="tok-key">"$1"</span>:')
       .replace(/:\s*"([^"]*)"/g, ': <span class="tok-str">"$1"</span>')
-      .replace(/:\s*(\d+)/g, ': <span class="tok-num">$1</span>')
+      .replace(/:\s*(-?\d+\.?\d*)/g, ': <span class="tok-num">$1</span>')
       .replace(/:\s*(true|false)/g, ': <span class="tok-bool">$1</span>')
       .replace(/:\s*(null)/g, ': <span class="tok-null">$1</span>');
 
-    if (isDiff) {
-      return `<div class="tok-diff">${formatted} <span class="tok-diff-tag">+ INJECTED</span></div>`;
-    }
     return `<div>${formatted}</div>`;
   }).join('');
 }
 
 function formatHeadersHighlight(headerMap) {
   if (!headerMap || Object.keys(headerMap).length === 0) {
-    return '<span class="tok-null">(No headers provided)</span>';
+    return '<span class="tok-null">(No headers returned)</span>';
   }
 
   return Object.entries(headerMap).map(([k, v]) => {
-    const isSpecial = k.includes('cors') || k.includes('access-control') || k.includes('proxyceptor');
     const line = `<span class="tok-key">${escapeHtml(k)}</span>: <span class="tok-str">${escapeHtml(v)}</span>`;
-    if (isSpecial) {
-      return `<div class="tok-diff">${line} <span class="tok-diff-tag">MODIFIED</span></div>`;
-    }
     return `<div>${line}</div>`;
   }).join('');
 }
