@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,7 +10,11 @@
   <link rel="apple-touch-icon" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="./src/demo.css">
+  <script type="module" src="./src/main.js"></script>
 </head>
 
 <body>
@@ -52,14 +57,16 @@
         <span class="step-badge">1</span>
         <div>
           <h2>Step 1: Load JS SDK</h2>
-          <div class="step-card-sub">Include the ProxyCeptor SDK bundle into your web page, SmartTV app, or hybrid container.</div>
+          <div class="step-card-sub">Include the ProxyCeptor SDK bundle into your web page, SmartTV app, or hybrid
+            container.</div>
         </div>
         <span class="spacer"></span>
         <span class="pill ok">✓ Loaded in Window</span>
       </div>
 
       <p class="muted" style="margin-top: 6px;">
-        One script tag. The SDK patches <code>window.fetch</code>, <code>XMLHttpRequest</code>, and <code>sendBeacon</code> safely in-memory without breaking your app.
+        One script tag. The SDK patches <code>window.fetch</code>, <code>XMLHttpRequest</code>, and
+        <code>sendBeacon</code> safely in-memory without breaking your app.
       </p>
 
       <pre class="code-block"><span class="tok-tag">&lt;script</span> <span class="tok-attr">src</span>=<span class="tok-str">"https://proxyceptor.com/proxyceptor-sdk.js"</span><span class="tok-tag">&gt;&lt;/script&gt;</span>
@@ -72,7 +79,8 @@
 
       <div class="hint-strip">
         <span>💡</span>
-        <span>The real SDK bundle is already loaded and active in this sandbox window. Proceed to Step 2 to connect your workspace or use the 10 preset rules below.</span>
+        <span>The real SDK bundle is already loaded and active in this sandbox window. Proceed to Step 2 to connect your
+          workspace or use the 10 preset rules below.</span>
       </div>
     </section>
 
@@ -86,14 +94,16 @@
         <span class="step-badge">2</span>
         <div>
           <h2>Step 2: Init API Key</h2>
-          <div class="step-card-sub">Connect your Cloud Workspace API key to sync rules remotely, or use built-in presets.</div>
+          <div class="step-card-sub">Connect your Cloud Workspace API key to sync rules remotely, or use built-in
+            presets.</div>
         </div>
       </div>
 
       <div class="field-row" style="margin-top: 14px;">
         <div class="field grow">
           <label>API Key</label>
-          <input id="apikey" placeholder="Paste your sdm_live_... API key from Workspace Settings" autocomplete="off" spellcheck="false" />
+          <input id="apikey" placeholder="Paste your sdm_live_... API key from Workspace Settings" autocomplete="off"
+            spellcheck="false" />
         </div>
         <button id="connect-btn" class="btn primary" style="height: 40px; padding: 0 20px;">
           <span>Connect &amp; Sync</span>
@@ -118,7 +128,8 @@
         <span class="step-badge">3</span>
         <div>
           <h2>Step 3: Active Rules &amp; Interception Policies</h2>
-          <div class="step-card-sub">Real cloud rules loaded from your workspace. Master switch and granular per-rule toggles update the SDK live.</div>
+          <div class="step-card-sub">Real cloud rules loaded from your workspace. Master switch and granular per-rule
+            toggles update the SDK live.</div>
         </div>
         <span class="spacer"></span>
         <span id="sync-note" class="sync-note">0 rules loaded · Awaiting API key</span>
@@ -147,7 +158,8 @@
 
       <div class="hint-strip" style="margin-top: 14px;">
         <span>⚡</span>
-        <span>Toggle any cloud rule above to activate or deactivate it in memory. Test real interception in Step 4 below.</span>
+        <span>Toggle any cloud rule above to activate or deactivate it in memory. Test real interception in Step 4
+          below.</span>
       </div>
     </section>
 
@@ -157,11 +169,13 @@
          STEP 4: RULES REAL DEMO (LIVE INTERCEPTION EXECUTION)
          ============================================================ -->
     <section class="step-card" id="step4-card" style="padding: 0; overflow: hidden; border: 1px solid #1e293b;">
-      <div class="step-card-head" style="padding: 16px 20px 14px; border-bottom: 1px solid #1e293b; background: #080d1a;">
+      <div class="step-card-head"
+        style="padding: 16px 20px 14px; border-bottom: 1px solid #1e293b; background: #080d1a;">
         <span class="step-badge">4</span>
         <div>
           <h2>Step 4: Live Interception Execution (The Real Demo)</h2>
-          <div class="step-card-sub">Real wire requests. Pick a capability on the left, inspect parameters, and execute live.</div>
+          <div class="step-card-sub">Real wire requests. Pick a capability on the left, inspect parameters, and execute
+            live.</div>
         </div>
         <span class="spacer"></span>
         <span class="ld-sim-pill-live">● Live Wire Execution</span>
@@ -227,7 +241,8 @@
               <div class="ld-target-left">
                 <span id="target-method-badge" class="ld-badge-method-post">POST</span>
                 <input id="target-url-input" class="ld-target-url-input" spellcheck="false" />
-                <button id="copy-target-url-btn" class="btn ghost sm" style="padding: 2px 10px; font-size: 11px;">Copy URL</button>
+                <button id="copy-target-url-btn" class="btn ghost sm" style="padding: 2px 10px; font-size: 11px;">Copy
+                  URL</button>
               </div>
 
               <div class="ld-target-actions">
@@ -310,7 +325,7 @@
                       <span id="res-body-badge" class="mini-tag neon">Live Wire Response</span>
                     </div>
                     <div id="res-body-display" class="mac-code-box fixed-top-box">
-(Click "Send Live Request" to execute real network request and inspect live response body)
+                      (Click "Send Live Request" to execute real network request and inspect live response body)
                     </div>
                   </div>
 
@@ -321,14 +336,15 @@
                       <span id="res-headers-badge" class="mini-tag">Captured Headers</span>
                     </div>
                     <div id="res-headers-display" class="mac-code-box fixed-bottom-box">
-(Click "Send Live Request" to capture wire response headers)
+                      (Click "Send Live Request" to capture wire response headers)
                     </div>
                   </div>
                 </div>
 
                 <div id="execution-footer" class="mac-win-footer">
                   <span class="footer-icon">⚡</span>
-                  <span id="res-footer-text">Click "Send Live Request" above to execute through active ProxyCeptor engine</span>
+                  <span id="res-footer-text">Click "Send Live Request" above to execute through active ProxyCeptor
+                    engine</span>
                 </div>
               </div>
             </div>
@@ -347,7 +363,8 @@
   </footer>
 
   <!-- Real SDK bundle -->
-  <script src="/proxyceptor-sdk.js"></script>
+  <script src="https://proxyceptor.com/proxyceptor-sdk.js"></script>
   <script type="module" src="./src/main.js"></script>
 </body>
+
 </html>
