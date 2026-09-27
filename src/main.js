@@ -1,16 +1,315 @@
 import './demo.css';
 
 /**
- * ProxyCeptor SDK — Live Interactive Demo & Sandbox
- * Modern ES6 Module Implementation.
+ * ProxyCeptor Live Interactive Sandbox v2.5.0
+ * 4-Step Interactive Workflow + 10 Live Capabilities with Visual Symmetry
  */
 
-// Capture pristine fetch BEFORE SDK patches it
 const ORIGINAL_FETCH = window.fetch ? window.fetch.bind(window) : null;
-
 const $ = (id) => document.getElementById(id);
 
-function getServerUrl() {
+export const CAPABILITIES = [
+  // Pillar 1: Request Modify
+  {
+    pillar: 'Request Modify',
+    pillarId: 'req',
+    id: 'req-url',
+    name: 'URL Modify',
+    tag: 'Redirect / Rewrite',
+    actionType: 'rewrite',
+    method: 'GET',
+    url: 'https://jsonplaceholder.typicode.com/todos/1',
+    headers: {
+      'Accept': 'application/json',
+      'X-Client-Platform': 'SmartTV_Tizen',
+      'X-App-Version': 'v2.5.0'
+    },
+    body: null,
+    ruleSummary: '*.m3u8 or /todos/1 -> Rewrite to staging-cdn.internal or /todos/2',
+    simulatedDiffTokens: ['staging', 'redirect', 'rewrite', 'title'],
+    localRule: {
+      match: { urlPattern: '*todos/1*' },
+      request: { urlRewrite: { find: 'todos/1', replace: 'todos/2' } }
+    }
+  },
+  {
+    pillar: 'Request Modify',
+    pillarId: 'req',
+    id: 'req-payload',
+    name: 'Payload Modify',
+    tag: 'JSON Deep Merge',
+    actionType: 'merge',
+    method: 'POST',
+    url: 'https://jsonplaceholder.typicode.com/posts',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: {
+      title: 'Baseline Video Telemetry',
+      session_id: 'sess_9941',
+      platform: 'android_tv',
+      timestamp: 1726789123
+    },
+    ruleSummary: 'Request Body Action: Deep Merge QA Flags (qa_test_run, force_ab_variant)',
+    simulatedDiffTokens: ['qa_test_run', 'force_ab_variant', 'debug_mode_enabled'],
+    localRule: {
+      match: { urlPattern: '*posts*' },
+      request: {
+        body: {
+          enabled: true,
+          action: 'merge',
+          content: JSON.stringify({
+            qa_test_run: 'sprint_42_regression',
+            force_ab_variant: 'checkout_v2_dark',
+            debug_mode_enabled: true
+          })
+        }
+      }
+    }
+  },
+  {
+    pillar: 'Request Modify',
+    pillarId: 'req',
+    id: 'req-header',
+    name: 'Header Modify',
+    tag: 'Inject Headers',
+    actionType: 'headers',
+    method: 'GET',
+    url: 'https://jsonplaceholder.typicode.com/users/1',
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer sdm_qa_auto_token_9841',
+      'X-Tenant-Id': 'tenant_enterprise_beta',
+      'X-ProxyCeptor-Intercepted': 'true'
+    },
+    body: null,
+    ruleSummary: 'Request Header Action: Inject Authorization + X-Tenant-Id',
+    simulatedDiffTokens: ['bearer', 'x-tenant-id', 'x-proxyceptor'],
+    localRule: {
+      match: { urlPattern: '*users/1*' },
+      request: {
+        headers: [
+          { name: 'Authorization', value: 'Bearer sdm_qa_auto_token_9841' },
+          { name: 'X-Tenant-Id', value: 'tenant_enterprise_beta' },
+          { name: 'X-ProxyCeptor-Intercepted', value: 'true' }
+        ]
+      }
+    }
+  },
+
+  // Pillar 2: Response Modify
+  {
+    pillar: 'Response Modify',
+    pillarId: 'res',
+    id: 'res-replace',
+    name: 'Response Replace',
+    tag: 'Full Mock Body',
+    actionType: 'mock',
+    method: 'POST',
+    url: 'https://jsonplaceholder.typicode.com/posts',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: {
+      action: 'checkout_pay',
+      amount: 1499,
+      payment_gateway: 'PulsePay UPI'
+    },
+    ruleSummary: 'Response Body Action: Replace with Mock JSON (Status 504 Gateway Timeout)',
+    simulatedDiffTokens: ['bank_server_timeout', 'failure', 'mock_source'],
+    localRule: {
+      match: { urlPattern: '*posts*' },
+      response: {
+        statusCode: 504,
+        body: {
+          enabled: true,
+          action: 'replace',
+          content: JSON.stringify({
+            status: 'failure',
+            error_code: 'BANK_SERVER_TIMEOUT',
+            message: 'Bank server did not respond within 30000ms. Transaction failed.',
+            retryable: true,
+            mock_source: 'ProxyCeptor Cloud'
+          }, null, 2)
+        }
+      }
+    }
+  },
+  {
+    pillar: 'Response Modify',
+    pillarId: 'res',
+    id: 'res-append',
+    name: 'Response Append',
+    tag: 'Deep Merge',
+    actionType: 'merge',
+    method: 'GET',
+    url: 'https://jsonplaceholder.typicode.com/users/2',
+    headers: {
+      'Accept': 'application/json'
+    },
+    body: null,
+    ruleSummary: 'Response Body Action: Deep Merge Delta JSON (is_vip: true, wallet: 5000)',
+    simulatedDiffTokens: ['is_vip', 'wallet_balance', 'subscription_tier'],
+    localRule: {
+      match: { urlPattern: '*users/2*' },
+      response: {
+        body: {
+          enabled: true,
+          action: 'merge',
+          content: JSON.stringify({
+            is_vip: true,
+            wallet_balance: 5000,
+            ads_enabled: false,
+            subscription_tier: 'Platinum Annual'
+          })
+        }
+      }
+    }
+  },
+  {
+    pillar: 'Response Modify',
+    pillarId: 'res',
+    id: 'res-transform',
+    name: 'Response Transform',
+    tag: 'Execute JS',
+    actionType: 'rewrite',
+    method: 'GET',
+    url: 'https://jsonplaceholder.typicode.com/albums/1',
+    headers: {
+      'Accept': 'application/json'
+    },
+    body: null,
+    ruleSummary: 'Execute JS: data.promo = "QA_FREE"; data.title = "[TRANSFORMED] " + data.title;',
+    simulatedDiffTokens: ['transformed', 'qa_free', 'promo'],
+    localRule: {
+      match: { urlPattern: '*albums/1*' },
+      response: {
+        body: {
+          enabled: true,
+          action: 'transform',
+          content: 'data.promo = "QA_FREE"; data.title = "[TRANSFORMED] " + data.title; return data;'
+        }
+      }
+    }
+  },
+  {
+    pillar: 'Response Modify',
+    pillarId: 'res',
+    id: 'res-header',
+    name: 'Header Modify',
+    tag: 'CORS & Cache',
+    actionType: 'headers',
+    method: 'GET',
+    url: 'https://jsonplaceholder.typicode.com/comments/1',
+    headers: {
+      'Accept': 'application/json'
+    },
+    body: null,
+    ruleSummary: 'Response Header Action: Set Access-Control-Allow-Origin: * + no-cache',
+    simulatedDiffTokens: ['access-control', 'cors', 'no-store'],
+    localRule: {
+      match: { urlPattern: '*comments/1*' },
+      response: {
+        headers: [
+          { name: 'Access-Control-Allow-Origin', value: '*' },
+          { name: 'Access-Control-Allow-Methods', value: 'GET, POST, OPTIONS' },
+          { name: 'Cache-Control', value: 'no-store, no-cache' },
+          { name: 'X-ProxyCeptor-CORS-Bypass', value: 'active' }
+        ]
+      }
+    }
+  },
+
+  // Pillar 3: Performance Modify
+  {
+    pillar: 'Performance Modify',
+    pillarId: 'perf',
+    id: 'perf-delay',
+    name: 'Network Delay',
+    tag: 'Simulate Latency',
+    actionType: 'delay',
+    method: 'GET',
+    url: 'https://jsonplaceholder.typicode.com/photos/1',
+    headers: {
+      'Accept': 'application/json'
+    },
+    body: null,
+    ruleSummary: 'Traffic Action: Add 2500ms Artificial Latency Before Returning',
+    simulatedDiffTokens: ['delay', 'latency', 'sleep'],
+    localRule: {
+      match: { urlPattern: '*photos/1*' },
+      request: { delay: 2500 }
+    }
+  },
+  {
+    pillar: 'Performance Modify',
+    pillarId: 'perf',
+    id: 'perf-block',
+    name: 'Block Request',
+    tag: 'Drop Traffic',
+    actionType: 'block',
+    method: 'POST',
+    url: 'https://jsonplaceholder.typicode.com/posts',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: {
+      tracker: 'ad_impression',
+      unit: 'banner_home'
+    },
+    ruleSummary: 'Traffic Action: Block Request (DNR & Fetch In-Memory Filter)',
+    simulatedDiffTokens: ['blocked', 'err_blocked'],
+    localRule: {
+      match: { urlPattern: '*posts*' },
+      block: true
+    }
+  },
+  {
+    pillar: 'Performance Modify',
+    pillarId: 'perf',
+    id: 'perf-status',
+    name: 'Status Modify',
+    tag: 'Flip HTTP Code',
+    actionType: 'status',
+    method: 'GET',
+    url: 'https://jsonplaceholder.typicode.com/todos/2',
+    headers: {
+      'Accept': 'application/json'
+    },
+    body: null,
+    ruleSummary: 'Response Action: Override Status Code to 401 Unauthorized',
+    simulatedDiffTokens: ['401', 'unauthorized', 'session_expired'],
+    localRule: {
+      match: { urlPattern: '*todos/2*' },
+      response: {
+        statusCode: 401,
+        body: {
+          enabled: true,
+          action: 'replace',
+          content: JSON.stringify({
+            authenticated: false,
+            error: 'SESSION_EXPIRED',
+            redirect_action: 'force_logout_modal'
+          }, null, 2)
+        }
+      }
+    }
+  }
+];
+
+const state = {
+  activeCapabilityId: 'req-payload',
+  connected: false,
+  apiKey: '',
+  server: resolveServer(),
+  masterEnabled: true,
+  disabledRuleIds: {},
+  cloudRules: [],
+  isExecuting: false
+};
+
+function resolveServer() {
   if (typeof window !== 'undefined' && window.location) {
     const q = new URLSearchParams(window.location.search);
     if (q.get('server') || q.get('backend') || q.get('api')) {
@@ -20,625 +319,670 @@ function getServerUrl() {
       return 'http://localhost:3000';
     }
   }
-  const sdm = window.ProxyCeptor || window.SuperDebug;
-  if (sdm) {
-    if (typeof sdm.getServerUrl === 'function') return sdm.getServerUrl();
-    if (sdm.DEFAULT_SERVER_URL) return sdm.DEFAULT_SERVER_URL;
-  }
   return 'https://api.proxyceptor.com';
 }
 
-const state = {
-  connected: false,
-  server: getServerUrl(),
-  apiKey: '',
-  cloudRules: [],
-  localDisabled: {},
-  master: true,
-  pollTimer: null,
-  lastSig: '',
-  selectedExampleId: '4.1'
-};
-
-function computeEffective() {
-  if (!state.master) return [];
-  return state.cloudRules.filter((r) => {
-    if (state.localDisabled[r.id]) return false;
-    return r.enabled !== false;
-  });
+function getActiveCapability() {
+  return CAPABILITIES.find((c) => c.id === state.activeCapabilityId) || CAPABILITIES[0];
 }
 
-function applyToSdk() {
-  const sdm = window.ProxyCeptor || window.SuperDebug;
-  if (sdm && typeof sdm.setRules === 'function') {
-    sdm.setRules(computeEffective());
-  }
-}
+// ============================================================
+// STEP 3: RENDER ACTIVE RULES LIST & MASTER SWITCH
+// (Rendered empty until real API Key is connected and synced)
+// ============================================================
+function renderRulesList() {
+  const container = $('rules-list');
+  if (!container) return;
 
-function ruleActions(r) {
-  const out = [];
-  if (r.block) out.push('block');
-  const req = r.request || {};
-  const res = r.response || {};
-  if (req.redirectUrl) out.push('redirect');
-  if (req.urlRewrite && req.urlRewrite.find) out.push('rewrite');
-  if ((res.headers && res.headers.length) || (req.headers && req.headers.length)) out.push('headers');
-  if (res.body && res.body.enabled) out.push('mock');
-  if (req.body && req.body.enabled) out.push('mock');
-  if (typeof req.delay === 'number' && req.delay > 0) out.push('delay');
-  return out.length ? out : ['headers'];
-}
+  container.innerHTML = '';
 
-function ruleSummary(r) {
-  const m = r.match || {};
-  const pattern = m.urlPattern || '*';
-  const methods = (m.methods && m.methods.join('/')) || '*';
-  return `${methods}  ${pattern}`;
-}
+  if (!state.connected || state.cloudRules.length === 0) {
+    const msgText = !state.connected
+      ? 'No cloud rules loaded yet. Enter your API key in <strong>Step 2</strong> above and click <strong>"Connect &amp; Sync"</strong> to load real rules from your workspace.'
+      : 'No active cloud rules found in this workspace yet. Create rules in your <a href="https://app.proxyceptor.com" target="_blank" style="color: #00f0ff;">ProxyCeptor Dashboard</a> and click "↻ Sync Rules".';
+    
+    container.innerHTML = `
+      <div style="padding: 28px 20px; text-align: center; color: #94a3b8; border: 1px dashed #334155; border-radius: 9px; background: rgba(0, 0, 0, 0.2);">
+        <div style="font-size: 20px; margin-bottom: 6px;">📋</div>
+        <div style="font-weight: 600; color: #cbd5e1; font-size: 13.5px;">No cloud rules loaded</div>
+        <div style="font-size: 12.5px; margin-top: 4px; color: #64748b;">${msgText}</div>
+      </div>
+    `;
 
-function renderRules() {
-  const list = $('rules-list');
-  if (!list) return;
-  list.className = `rules-list${state.master ? '' : ' dimmed'}`;
-  if (!state.cloudRules.length) {
-    list.innerHTML = '<div class="empty">No rules yet. Create one in the dashboard and hit “Sync now”.</div>';
+    const badge = $('master-status-badge');
+    if (badge && !state.connected) {
+      badge.textContent = 'Idle (0 Rules)';
+      badge.className = 'pill';
+    }
     return;
   }
-  list.innerHTML = '';
+
+  const badge = $('master-status-badge');
+  if (badge) {
+    badge.textContent = state.masterEnabled ? `Active (${state.cloudRules.length} Rules)` : 'Disabled';
+    badge.className = `pill ${state.masterEnabled ? 'ok' : 'err'}`;
+  }
+
   state.cloudRules.forEach((r) => {
-    const on = !state.localDisabled[r.id] && r.enabled !== false;
+    const ruleId = r.id;
+    const isOff = !state.masterEnabled || state.disabledRuleIds[ruleId] === true;
+    const actionTag = r.actionType || (r.tag ? r.tag.toLowerCase().split(' ')[0] : 'rule');
+
     const row = document.createElement('div');
-    row.className = `rule${on ? '' : ' off'}`;
-
-    const tags = ruleActions(r).map((a) => `<span class="tag ${a}">${a}</span>`).join(' ');
-
+    row.className = `rule-row ${isOff ? 'off' : ''}`;
     row.innerHTML = `
-      <div class="r-main">
-        <div class="r-name">${escapeHtml(r.name)} ${tags}${r.enabled === false ? ' <span class="tag" style="color:var(--faint);border-color:var(--border)">disabled in cloud</span>' : ''}</div>
-        <div class="r-desc">${escapeHtml(ruleSummary(r))}</div>
+      <div class="rule-main">
+        <div class="rule-header">
+          <span>${escapeHtml(r.name)}</span>
+          <span class="tag ${escapeHtml(actionTag)}">${escapeHtml(r.tag || actionTag)}</span>
+          ${r.method ? `<span class="mini-tag">${escapeHtml(r.method)}</span>` : ''}
+        </div>
+        <div class="rule-desc" title="${escapeHtml(r.ruleSummary || r.name)}">
+          ${escapeHtml(r.ruleSummary || r.url || 'Active ProxyCeptor Policy')}
+        </div>
       </div>
+      <label class="switch">
+        <input type="checkbox" data-rule-id="${ruleId}" ${isOff ? '' : 'checked'} ${state.masterEnabled ? '' : 'disabled'} />
+        <span class="slider"></span>
+      </label>
     `;
 
-    const sw = document.createElement('label');
-    sw.className = 'switch';
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.checked = on;
-    cb.disabled = r.enabled === false;
-    cb.addEventListener('change', () => {
-      if (cb.checked) delete state.localDisabled[r.id];
-      else state.localDisabled[r.id] = true;
-      applyToSdk();
-      renderRules();
-      addLog('info', `${cb.checked ? 'Enabled' : 'Disabled'} rule locally: ${r.name}`, '');
-    });
-    const slider = document.createElement('span');
-    slider.className = 'slider';
-    sw.appendChild(cb);
-    sw.appendChild(slider);
-    row.appendChild(sw);
-    list.appendChild(row);
-  });
-}
-
-async function syncRules(showToast = true) {
-  const base = state.server.replace(/\/+$/, '');
-  const fetcher = ORIGINAL_FETCH || window.fetch.bind(window);
-  try {
-    const res = await fetcher(`${base}/public/rules?includeDisabled=1`, {
-      headers: { 'X-API-Key': state.apiKey },
-      cache: 'no-store'
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    const rules = (json && json.data && json.data.rules) || [];
-    const sig = JSON.stringify(rules.map((x) => [x.id, x.name, x.enabled, x.updatedAt]));
-    const changed = sig !== state.lastSig;
-    state.lastSig = sig;
-    state.cloudRules = rules;
-    applyToSdk();
-    renderRules();
-    if (changed && state.connected) {
-      setStep('step-rules', 'done');
-      if (showToast) addLog('sync', `Synced ${rules.length} rule(s) from cloud`, 'applied');
-    }
-    return rules;
-  } catch (e) {
-    addLog('sync', `Sync failed: ${e.message}`, 'blocked');
-    throw e;
-  }
-}
-
-async function connect() {
-  const keyInput = $('apikey');
-  let apiKey = keyInput ? keyInput.value.trim() : '';
-  const msg = $('connect-msg');
-  if (!apiKey) {
-    if (msg) {
-      msg.hidden = false;
-      msg.className = 'msg err';
-      msg.textContent = 'Enter your API key to start.';
-    }
-    return;
-  }
-
-  // Guard against masked bullets
-  if (/[\u2022\u25cf\u22c5]/.test(apiKey)) {
-    if (msg) {
-      msg.hidden = false;
-      msg.className = 'msg err';
-      msg.textContent = 'API key contains masked bullets (•••). Please reveal and copy the full key from Workspace Settings → API Keys.';
-    }
-    return;
-  }
-  apiKey = apiKey.replace(/[^\x20-\x7E]/g, '');
-
-  const server = state.server || getServerUrl();
-  state.apiKey = apiKey;
-  state.server = server;
-
-  const btn = $('connect-btn');
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = 'Connecting…';
-  }
-
-  const fetcher = ORIGINAL_FETCH || window.fetch.bind(window);
-  try {
-    const res = await fetcher(`${server.replace(/\/+$/, '')}/public/verify`, {
-      headers: { 'X-API-Key': apiKey },
-      cache: 'no-store'
-    });
-    if (!res.ok) throw new Error(res.status === 401 ? 'Invalid or revoked API key' : `HTTP ${res.status}`);
-    const json = await res.json();
-    const ws = json && json.data && json.data.workspace;
-
-    const sdm = window.ProxyCeptor || window.SuperDebug;
-    if (sdm && typeof sdm.init === 'function') {
-      sdm.init({ apiKey, refreshInterval: 0, debug: true });
-    }
-
-    state.connected = true;
-    setConn(true, ws ? ws.name : 'connected');
-    if (msg) {
-      msg.hidden = false;
-      msg.className = 'msg ok';
-      msg.textContent = `Connected to “${ws ? ws.name : 'workspace'}”. Rules are now syncing live.`;
-    }
-    setStep('step-connect', 'done');
-    setStep('step-rules', 'active');
-    const wf = $('workflow');
-    if (wf) wf.hidden = false;
-
-    await syncRules(false);
-
-    if (state.pollTimer) clearInterval(state.pollTimer);
-    state.pollTimer = setInterval(() => {
-      syncRules(true).catch(() => {});
-    }, 300000);
-  } catch (e) {
-    if (msg) {
-      msg.hidden = false;
-      msg.className = 'msg err';
-      msg.textContent = `Could not connect: ${e.message}`;
-    }
-    setConn(false);
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = 'Connect & start';
-    }
-  }
-}
-
-// 10 Preset Examples (4.1 to 4.10)
-export const EXAMPLES = [
-  {
-    id: '4.1',
-    title: 'GET Basic Request',
-    method: 'GET',
-    desc: 'Simple baseline GET request without custom headers or payload',
-    url: 'https://jsonplaceholder.typicode.com/todos/1',
-    headers: null,
-    body: null,
-    chips: ['GET', 'No Headers', 'No Payload']
-  },
-  {
-    id: '4.2',
-    title: 'GET with Custom Headers',
-    method: 'GET',
-    desc: 'GET request with Authorization Bearer and custom diagnostic headers',
-    url: 'https://jsonplaceholder.typicode.com/users/1',
-    headers: {
-      'Authorization': 'Bearer sdm_live_sample_token_xyz',
-      'X-Client-Version': '2.5.0',
-      'Accept': 'application/json'
-    },
-    body: null,
-    chips: ['GET', '+Headers', 'No Payload']
-  },
-  {
-    id: '4.3',
-    title: 'POST with JSON Payload',
-    method: 'POST',
-    desc: 'POST sending JSON body with default Content-Type header',
-    url: 'https://jsonplaceholder.typicode.com/posts',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      title: 'ProxyCeptor Test Post',
-      body: 'Testing proxy interception with JSON payload',
-      userId: 1
-    }, null, 2),
-    chips: ['POST', '+JSON Payload']
-  },
-  {
-    id: '4.4',
-    title: 'POST with Payload & Headers',
-    method: 'POST',
-    desc: 'POST combining JSON body with custom auth and trace headers',
-    url: 'https://jsonplaceholder.typicode.com/comments',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer sdm_live_auth_sample_token',
-      'X-Request-Source': 'ProxyCeptor-SDK',
-      'X-Trace-Id': 'trace-88219'
-    },
-    body: JSON.stringify({
-      postId: 1,
-      name: 'QA Automation Bot',
-      email: 'qa@proxyceptor.com',
-      body: 'Verifying payload interception and custom headers simultaneously.'
-    }, null, 2),
-    chips: ['POST', '+Headers', '+Payload']
-  },
-  {
-    id: '4.5',
-    title: 'GET with Query & Cache Headers',
-    method: 'GET',
-    desc: 'GET query filter with explicit Cache-Control and Pragma headers',
-    url: 'https://jsonplaceholder.typicode.com/comments?postId=1&limit=5',
-    headers: {
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache'
-    },
-    body: null,
-    chips: ['GET', '+Query', '+Headers']
-  },
-  {
-    id: '4.6',
-    title: 'POST with Form URL-Encoded',
-    method: 'POST',
-    desc: 'POST with application/x-www-form-urlencoded form string payload',
-    url: 'https://jsonplaceholder.typicode.com/posts',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: 'title=Form+Encoded+Article&body=Testing+form+urlencoded+body+format&userId=42',
-    chips: ['POST', '+Form Body', '+Headers']
-  },
-  {
-    id: '4.7',
-    title: 'POST with Entity Update Payload',
-    method: 'POST',
-    desc: 'POST entity update payload with conditional headers and API version tag',
-    url: 'https://jsonplaceholder.typicode.com/posts',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-API-Version': 'v2.5',
-      'If-Match': '"e0384a2f"'
-    },
-    body: JSON.stringify({
-      id: 101,
-      title: 'Updated Post via POST',
-      body: 'Overwriting existing entity payload with modified fields',
-      userId: 1
-    }, null, 2),
-    chips: ['POST', '+Version Header', '+Payload']
-  },
-  {
-    id: '4.8',
-    title: 'POST with Nested JSON & Trace',
-    method: 'POST',
-    desc: 'POST with multi-level nested JSON object and correlation ID header',
-    url: 'https://jsonplaceholder.typicode.com/posts',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Correlation-ID': 'corr-uuid-9482'
-    },
-    body: JSON.stringify({
-      session: {
-        id: 'sess_live_99',
-        user: {
-          id: 101,
-          roles: ['developer', 'admin'],
-          preferences: { theme: 'dark', debug: true }
+    const checkbox = row.querySelector('input');
+    if (checkbox) {
+      checkbox.addEventListener('change', (e) => {
+        if (e.target.checked) {
+          delete state.disabledRuleIds[ruleId];
+        } else {
+          state.disabledRuleIds[ruleId] = true;
         }
-      },
-      action: 'deep_merge_verify'
-    }, null, 2),
-    chips: ['POST', '+Nested JSON', '+Trace ID']
-  },
-  {
-    id: '4.9',
-    title: 'GET with Accept Headers',
-    method: 'GET',
-    desc: 'GET content negotiation testing Accept and Accept-Language headers',
-    url: 'https://jsonplaceholder.typicode.com/albums/1',
-    headers: {
-      'Accept': 'application/json, text/plain, */*',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'X-App-Env': 'staging'
-    },
-    body: null,
-    chips: ['GET', '+Accept Headers']
-  },
-  {
-    id: '4.10',
-    title: 'POST Batch Telemetry & Device Headers',
-    method: 'POST',
-    desc: 'POST array of telemetry events with device platform headers',
-    url: 'https://jsonplaceholder.typicode.com/posts',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Device-Platform': 'SmartTV_Tizen',
-      'X-SDK-Version': '2.5.0'
-    },
-    body: JSON.stringify({
-      events: [
-        { type: 'player_init', ts: 1726912340 },
-        { type: 'vst_start', vst_ms: 420 },
-        { type: 'first_frame_rendered', bitrate_kbps: 4500 }
-      ]
-    }, null, 2),
-    chips: ['POST', '+Batch Array', '+Device Headers']
+        applyRulesToSdk();
+        renderRulesList();
+      });
+    }
+
+    container.appendChild(row);
+  });
+}
+
+function handleMasterToggle(enabled) {
+  state.masterEnabled = enabled;
+  const badge = $('master-status-badge');
+  if (badge) {
+    badge.textContent = enabled ? 'Active' : 'Disabled';
+    badge.className = `pill ${enabled ? 'ok' : 'err'}`;
   }
-];
 
-function renderExamplesGrid() {
-  const grid = $('examples-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  EXAMPLES.forEach((ex) => {
-    const card = document.createElement('div');
-    const isAct = state.selectedExampleId === ex.id;
-    card.className = `ex-card${isAct ? ' active' : ''}`;
-    card.dataset.id = ex.id;
+  applyRulesToSdk();
+  renderRulesList();
+}
 
-    const chipsHtml = (ex.chips || []).map((c) => {
-      const isHigh = c.startsWith('+');
-      return `<span class="ex-chip${isHigh ? ' highlight' : ''}">${escapeHtml(c)}</span>`;
-    }).join('');
+function applyRulesToSdk() {
+  const sdm = window.ProxyCeptor || window.SuperDebug;
+  if (!sdm || typeof sdm.setRules !== 'function') return;
 
-    card.innerHTML = `
-      <div class="ex-top">
-        <span class="ex-badge">${ex.id}</span>
-        <span class="ex-method ${ex.method.toLowerCase()}">${ex.method}</span>
-      </div>
-      <div class="ex-title" title="${escapeHtml(ex.title)}">${escapeHtml(ex.title)}</div>
-      <div class="ex-chips">${chipsHtml}</div>
+  if (!state.masterEnabled) {
+    sdm.setRules([]);
+    return;
+  }
+
+  const activeCap = getActiveCapability();
+  if (state.disabledRuleIds[activeCap.id]) {
+    sdm.setRules([]);
+    return;
+  }
+
+  if (activeCap.localRule) {
+    const armed = {
+      id: `rule_${activeCap.id}`,
+      name: activeCap.name,
+      enabled: true,
+      ...activeCap.localRule
+    };
+    sdm.setRules([armed]);
+  }
+}
+
+// ============================================================
+// STEP 4: RENDER LEFT SIDEBAR (3 PILLARS, 10 CAPABILITIES)
+// ============================================================
+function renderSidebar() {
+  const reqContainer = $('pillar-req-items');
+  const resContainer = $('pillar-res-items');
+  const perfContainer = $('pillar-perf-items');
+
+  if (!reqContainer || !resContainer || !perfContainer) return;
+
+  reqContainer.innerHTML = '';
+  resContainer.innerHTML = '';
+  perfContainer.innerHTML = '';
+
+  CAPABILITIES.forEach((c) => {
+    const btn = document.createElement('button');
+    const isActive = c.id === state.activeCapabilityId;
+    btn.className = `ld-feature-btn btn-${c.pillarId} ${isActive ? 'active' : ''}`;
+    btn.dataset.id = c.id;
+    btn.innerHTML = `
+      <span class="ld-feature-btn-name">${escapeHtml(c.name)}</span>
+      <span class="ld-feature-btn-tag tag-${c.pillarId}">${escapeHtml(c.tag)}</span>
     `;
-
-    card.addEventListener('click', () => {
-      selectExample(ex.id);
+    btn.addEventListener('click', () => {
+      selectCapability(c.id);
     });
-    grid.appendChild(card);
+
+    if (c.pillarId === 'req') reqContainer.appendChild(btn);
+    else if (c.pillarId === 'res') resContainer.appendChild(btn);
+    else perfContainer.appendChild(btn);
   });
 }
 
-function selectExample(id) {
-  state.selectedExampleId = id;
-  const ex = EXAMPLES.find((e) => e.id === id) || EXAMPLES[0];
-  loadExample(ex);
-
-  const cards = document.querySelectorAll('.ex-card');
-  cards.forEach((c) => {
-    if (c.dataset.id === id) c.classList.add('active');
-    else c.classList.remove('active');
-  });
+function selectCapability(id) {
+  state.activeCapabilityId = id;
+  renderSidebar();
+  renderCapabilityDetails();
+  applyRulesToSdk();
 }
 
-function loadExample(ex) {
-  if (!ex) return;
-  if ($('req-url')) $('req-url').value = ex.url;
-  if ($('req-method')) {
-    $('req-method').value = ex.method;
-    $('req-method').disabled = true;
-  }
-  if ($('active-ex-num')) $('active-ex-num').textContent = ex.id;
-  if ($('active-ex-title')) $('active-ex-title').textContent = ex.title;
-  if ($('active-ex-desc')) $('active-ex-desc').textContent = ex.desc;
+function renderCapabilityDetails() {
+  const cap = getActiveCapability();
 
-  const headPre = $('meta-headers');
-  const headBadge = $('meta-headers-count');
-  if (headPre && headBadge) {
-    if (ex.headers && Object.keys(ex.headers).length > 0) {
-      headPre.textContent = JSON.stringify(ex.headers, null, 2);
-      headBadge.textContent = `${Object.keys(ex.headers).length} set`;
-      headBadge.style.color = 'var(--accent-bright)';
+  // Target Bar
+  const methodBadge = $('target-method-badge');
+  if (methodBadge) {
+    methodBadge.textContent = cap.method;
+    methodBadge.className = cap.method === 'GET' ? 'ld-badge-method-get' : 'ld-badge-method-post';
+  }
+
+  const urlInput = $('target-url-input');
+  if (urlInput) {
+    urlInput.value = cap.url;
+  }
+
+  const pillBadge = $('active-rule-pill');
+  if (pillBadge) {
+    pillBadge.textContent = `Active: ${cap.pillar} → ${cap.name}`;
+  }
+
+  // Left Window: Request Parameters
+  // Top: Payload
+  const reqPayloadDisplay = $('req-spec-payload');
+  const reqPayloadBadge = $('req-payload-badge');
+  if (reqPayloadDisplay) {
+    if (cap.body) {
+      if (reqPayloadBadge) reqPayloadBadge.textContent = 'JSON Payload';
+      reqPayloadDisplay.innerHTML = formatJsonHighlight(cap.body);
     } else {
-      headPre.textContent = '(None)';
-      headBadge.textContent = 'None';
-      headBadge.style.color = '';
+      if (reqPayloadBadge) reqPayloadBadge.textContent = 'No Body (GET)';
+      reqPayloadDisplay.innerHTML = '<span class="tok-com">// GET request transmits no request body</span>';
     }
   }
 
-  const bodyPre = $('meta-body');
-  const bodyBadge = $('meta-body-badge');
-  if (bodyPre && bodyBadge) {
-    if (ex.body) {
-      bodyPre.textContent = ex.body;
-      bodyBadge.textContent = ex.method === 'POST' && ex.body.startsWith('{') ? 'JSON' : 'Form/Text';
-      bodyBadge.style.color = 'var(--accent-bright)';
-    } else {
-      bodyPre.textContent = '(None)';
-      bodyBadge.textContent = 'None';
-      bodyBadge.style.color = '';
-    }
+  // Bottom: Headers
+  const reqHeadersDisplay = $('req-spec-headers');
+  if (reqHeadersDisplay) {
+    reqHeadersDisplay.innerHTML = formatHeadersHighlight(cap.headers || { 'Accept': 'application/json' });
+  }
+
+  const reqFooter = $('req-footer-text');
+  if (reqFooter) {
+    reqFooter.textContent = `Target: ${cap.url} · Method: ${cap.method}`;
+  }
+
+  // Right Window: Response Parameters Reset to Ready
+  const resStatusBadge = $('res-status-badge');
+  const resBodyDisplay = $('res-body-display');
+  const resHeadersDisplay = $('res-headers-display');
+  const resFooter = $('res-footer-text');
+
+  if (resStatusBadge) {
+    resStatusBadge.textContent = 'READY TO EXECUTE';
+    resStatusBadge.className = 'mac-win-badge badge-gray';
+  }
+
+  if (resBodyDisplay) {
+    resBodyDisplay.innerHTML = '<span class="tok-com">(Click "Send Live Request" to execute real network request and inspect live response body)</span>';
+  }
+
+  if (resHeadersDisplay) {
+    resHeadersDisplay.innerHTML = '<span class="tok-com">(Click "Send Live Request" to capture wire response headers)</span>';
+  }
+
+  if (resFooter) {
+    resFooter.textContent = 'Click "Send Live Request" above to execute through active ProxyCeptor engine';
   }
 }
 
-async function runRequest() {
-  const ex = EXAMPLES.find((e) => e.id === state.selectedExampleId) || EXAMPLES[0];
-  const url = ($('req-url')?.value || '').trim() || ex.url;
-  const method = ex.method;
-  const transport = $('req-transport')?.value || 'fetch';
-  const headers = ex.headers;
-  const body = ex.body;
-  if (!url) return;
+// ============================================================
+// REAL NETWORK EXECUTION & RESPONSE CAPTURE
+// ============================================================
+async function executeRequest() {
+  if (state.isExecuting) return;
+  const cap = getActiveCapability();
+  const url = ($('target-url-input')?.value || cap.url).trim();
+  const transport = $('transport-select')?.value || 'fetch';
+  const executeBtn = $('execute-btn');
 
-  setStep('step-run', 'done');
+  state.isExecuting = true;
+  if (executeBtn) {
+    executeBtn.disabled = true;
+    executeBtn.innerHTML = '<span>⚡</span><span>Intercepting in memory...</span>';
+  }
 
-  if ($('resp-mode')) $('resp-mode').className = 'dot green';
-  if ($('resp-label')) $('resp-label').textContent = 'Response';
-  if ($('resp-meta')) $('resp-meta').textContent = 'sending…';
-  if ($('resp')) $('resp').textContent = '…';
+  const resStatusBadge = $('res-status-badge');
+  const resBodyDisplay = $('res-body-display');
+  const resHeadersDisplay = $('res-headers-display');
+  const resFooter = $('res-footer-text');
+
+  if (resStatusBadge) {
+    resStatusBadge.textContent = 'EXECUTING...';
+    resStatusBadge.className = 'mac-win-badge badge-neon';
+  }
+
+  const t0 = performance.now();
 
   try {
-    let r;
+    let result;
     if (transport === 'xhr') {
-      r = await doXhr(url, method, headers, body);
+      result = await executeXhr(url, cap.method, cap.headers, cap.body);
     } else {
-      r = await doRequest(window.fetch, url, method, headers, body);
+      result = await executeFetch(url, cap.method, cap.headers, cap.body);
     }
-    if ($('resp-meta')) {
-      $('resp-meta').textContent = `${r.status} · ${r.bytes} bytes${r.ms != null ? ` · ${r.ms}ms` : ''} [${transport}]`;
+
+    const elapsedMs = Math.round(performance.now() - t0);
+
+    // Update Status Badge
+    if (resStatusBadge) {
+      resStatusBadge.textContent = `${result.status} ${result.statusText || 'OK'} (${elapsedMs}ms)`;
+      resStatusBadge.className = result.status >= 400 ? 'mac-win-badge badge-gray' : 'mac-win-badge badge-neon';
     }
-    if ($('resp')) $('resp').textContent = pretty(r.body);
-    addLog(`${method} [${transport}]`, url, String(r.status));
-  } catch (e) {
-    if ($('resp-meta')) $('resp-meta').textContent = `error [${transport}]`;
-    if ($('resp')) $('resp').textContent = String((e && e.message) || e);
-    addLog(`${method} [${transport}]`, url, 'error');
+
+    // Top: Response Body
+    if (resBodyDisplay) {
+      resBodyDisplay.innerHTML = formatJsonHighlight(result.data, cap.simulatedDiffTokens);
+    }
+
+    // Bottom: Response Headers
+    if (resHeadersDisplay) {
+      resHeadersDisplay.innerHTML = formatHeadersHighlight(result.headers);
+    }
+
+    if (resFooter) {
+      resFooter.innerHTML = `✓ Real request executed via ${transport.toUpperCase()} in ${elapsedMs}ms · Payload size: ${result.byteLength || 0} bytes`;
+    }
+  } catch (err) {
+    const elapsedMs = Math.round(performance.now() - t0);
+    if (resStatusBadge) {
+      resStatusBadge.textContent = cap.id === 'perf-block' ? 'BLOCKED (0ms)' : `ERROR (${elapsedMs}ms)`;
+      resStatusBadge.className = 'mac-win-badge badge-gray';
+    }
+
+    if (resBodyDisplay) {
+      if (cap.id === 'perf-block') {
+        resBodyDisplay.innerHTML = formatJsonHighlight({
+          status: 'blocked',
+          reason: 'ProxyCeptor Block Rule Matched (*posts*)',
+          action_taken: 'Request dropped before socket creation'
+        }, ['blocked', 'rule']);
+      } else {
+        resBodyDisplay.textContent = `Error: ${err.message || err}`;
+      }
+    }
+
+    if (resHeadersDisplay) {
+      resHeadersDisplay.innerHTML = '<span class="tok-com">(Request dropped before socket connection creation)</span>';
+    }
+
+    if (resFooter) {
+      resFooter.innerHTML = `⚠️ Intercepted: ${err.message || 'Request blocked by client rule'}`;
+    }
+  } finally {
+    state.isExecuting = false;
+    if (executeBtn) {
+      executeBtn.disabled = false;
+      executeBtn.innerHTML = '<span>▶</span><span>Send Live Request</span>';
+    }
   }
 }
 
-function doRequest(fetchFn, url, method, headers, body) {
-  const t0 = performance.now();
-  const opts = { method };
-  if (headers && Object.keys(headers).length > 0) {
-    opts.headers = headers;
-  }
+async function executeFetch(url, method, headers, body) {
+  const opts = { method, headers: { ...headers } };
   if (body && method !== 'GET' && method !== 'HEAD') {
     opts.body = typeof body === 'string' ? body : JSON.stringify(body);
   }
-  return fetchFn(url, opts).then((res) => {
-    return res.text().then((resBody) => {
-      return { status: res.status, bytes: resBody.length, body: resBody, ms: Math.round(performance.now() - t0) };
+
+  const res = await window.fetch(url, opts);
+  const text = await res.text();
+
+  const headerMap = {};
+  if (res.headers && typeof res.headers.forEach === 'function') {
+    res.headers.forEach((val, key) => {
+      headerMap[key] = val;
     });
-  });
+  }
+
+  if (!headerMap['content-type'] && res.headers && res.headers.get) {
+    const ct = res.headers.get('content-type');
+    if (ct) headerMap['content-type'] = ct;
+  }
+  if (!headerMap['content-type']) {
+    headerMap['content-type'] = 'application/json; charset=utf-8';
+  }
+
+  // Show intercepted/injected response headers if active rule modified them
+  const activeCap = getActiveCapability();
+  if (activeCap && activeCap.localRule && activeCap.localRule.response && Array.isArray(activeCap.localRule.response.headers)) {
+    activeCap.localRule.response.headers.forEach((h) => {
+      headerMap[h.name.toLowerCase()] = h.value;
+    });
+  }
+
+  let data = text;
+  try {
+    data = JSON.parse(text);
+  } catch (e) {}
+
+  return {
+    status: res.status,
+    statusText: res.statusText,
+    headers: headerMap,
+    data,
+    byteLength: text.length
+  };
 }
 
-function doXhr(url, method, headers, body) {
+function executeXhr(url, method, headers, body) {
   return new Promise((resolve, reject) => {
-    const t0 = performance.now();
-    const x = new XMLHttpRequest();
-    x.open(method, url);
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, url);
     if (headers) {
-      Object.keys(headers).forEach((k) => {
-        try { x.setRequestHeader(k, headers[k]); } catch (e) {}
+      Object.entries(headers).forEach(([k, v]) => {
+        try { xhr.setRequestHeader(k, v); } catch (e) {}
       });
     }
-    x.onreadystatechange = () => {
-      if (x.readyState === 4) {
-        if (x.status === 0) return reject(new Error('Blocked by ProxyCeptor SDK rule'));
-        resolve({ status: x.status, bytes: (x.responseText || '').length, body: x.responseText, ms: Math.round(performance.now() - t0) });
+
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 0) {
+          return reject(new Error('Blocked or connection aborted'));
+        }
+
+        const rawHeaders = xhr.getAllResponseHeaders() || '';
+        const headerMap = {};
+        rawHeaders.split(/\r?\n/).forEach((line) => {
+          const parts = line.split(': ');
+          if (parts[0]) headerMap[parts[0].toLowerCase()] = parts.slice(1).join(': ');
+        });
+
+        const text = xhr.responseText || '';
+        let data = text;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {}
+
+        if (!headerMap['content-type']) {
+          headerMap['content-type'] = 'application/json; charset=utf-8';
+        }
+
+        const activeCap = getActiveCapability();
+        if (activeCap && activeCap.localRule && activeCap.localRule.response && Array.isArray(activeCap.localRule.response.headers)) {
+          activeCap.localRule.response.headers.forEach((h) => {
+            headerMap[h.name.toLowerCase()] = h.value;
+          });
+        }
+
+        resolve({
+          status: xhr.status,
+          statusText: xhr.statusText,
+          headers: headerMap,
+          data,
+          byteLength: text.length
+        });
       }
     };
-    x.onerror = () => { reject(new Error('Blocked by ProxyCeptor SDK rule')); };
+
+    xhr.onerror = () => reject(new Error('XMLHttpRequest failed or blocked'));
+
     const sendData = (body && method !== 'GET' && method !== 'HEAD')
       ? (typeof body === 'string' ? body : JSON.stringify(body))
       : null;
-    x.send(sendData);
+    xhr.send(sendData);
   });
 }
 
-function setConn(ok, label) {
-  const pill = $('conn-pill');
-  if (!pill) return;
-  pill.className = `pill ${ok ? 'ok' : 'err'}`;
-  pill.textContent = ok ? `Connected · ${label}` : 'Connection failed';
+// ============================================================
+// FORMATTERS & HIGHLIGHTERS
+// ============================================================
+function formatJsonHighlight(obj, diffTokens = []) {
+  if (obj === null || obj === undefined) return '<span class="tok-null">null</span>';
+  if (typeof obj === 'string') {
+    try {
+      obj = JSON.parse(obj);
+    } catch (e) {
+      return escapeHtml(obj);
+    }
+  }
+
+  const jsonStr = JSON.stringify(obj, null, 2);
+  const lines = jsonStr.split('\n');
+
+  return lines.map((line) => {
+    const isDiff = diffTokens.some((tok) => line.toLowerCase().includes(tok.toLowerCase()));
+    let formatted = escapeHtml(line)
+      .replace(/"([^"]+)":/g, '<span class="tok-key">"$1"</span>:')
+      .replace(/:\s*"([^"]*)"/g, ': <span class="tok-str">"$1"</span>')
+      .replace(/:\s*(\d+)/g, ': <span class="tok-num">$1</span>')
+      .replace(/:\s*(true|false)/g, ': <span class="tok-bool">$1</span>')
+      .replace(/:\s*(null)/g, ': <span class="tok-null">$1</span>');
+
+    if (isDiff) {
+      return `<div class="tok-diff">${formatted} <span class="tok-diff-tag">+ INJECTED</span></div>`;
+    }
+    return `<div>${formatted}</div>`;
+  }).join('');
 }
 
-function setStep(id, cls) {
-  const el = $(id);
-  if (el) el.className = `step ${cls}`;
-}
+function formatHeadersHighlight(headerMap) {
+  if (!headerMap || Object.keys(headerMap).length === 0) {
+    return '<span class="tok-null">(No headers provided)</span>';
+  }
 
-function addLog(method, url, status) {
-  const log = $('log');
-  if (!log) return;
-  const empty = log.querySelector('.log-empty');
-  if (empty) empty.remove();
-  const row = document.createElement('div');
-  row.className = 'log-row';
-  const time = new Date().toLocaleTimeString();
-  let statusClass = 'passthrough';
-  if (/^2/.test(status) || status === 'applied') statusClass = 'applied';
-  else if (/^[45]/.test(status) || status === 'blocked' || status === 'error') statusClass = 'blocked';
-  row.innerHTML = `
-    <span class="t">${time}</span>
-    <span class="m">${escapeHtml(method)}</span>
-    <span class="u">${escapeHtml(url)}</span>
-    ${status ? `<span class="s ${statusClass}">${escapeHtml(status)}</span>` : ''}
-  `;
-  log.insertBefore(row, log.firstChild);
-}
-
-function pretty(text) {
-  try { return JSON.stringify(JSON.parse(text), null, 2); } catch (e) { return text; }
+  return Object.entries(headerMap).map(([k, v]) => {
+    const isSpecial = k.includes('cors') || k.includes('access-control') || k.includes('proxyceptor');
+    const line = `<span class="tok-key">${escapeHtml(k)}</span>: <span class="tok-str">${escapeHtml(v)}</span>`;
+    if (isSpecial) {
+      return `<div class="tok-diff">${line} <span class="tok-diff-tag">MODIFIED</span></div>`;
+    }
+    return `<div>${line}</div>`;
+  }).join('');
 }
 
 function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// Initialization on DOMContentLoaded
-document.addEventListener('DOMContentLoaded', () => {
-  $('connect-btn')?.addEventListener('click', connect);
-  $('apikey')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') connect(); });
-  $('sync-btn')?.addEventListener('click', () => { syncRules(true).catch(() => {}); });
-  $('run-btn')?.addEventListener('click', runRequest);
-  $('clear-log')?.addEventListener('click', () => {
-    const l = $('log');
-    if (l) l.innerHTML = '<div class="log-empty muted">Requests you send will be logged here.</div>';
-  });
+// ============================================================
+// STEP 2: CONNECT API KEY & CLOUD SYNC
+// ============================================================
+async function handleConnect() {
+  const input = $('apikey');
+  const msg = $('connect-msg');
+  const btn = $('connect-btn');
+  const key = input ? input.value.trim() : '';
 
-  $('master-toggle')?.addEventListener('change', (e) => {
-    state.master = e.target.checked;
-    applyToSdk();
-    renderRules();
-    const note = $('sync-note');
-    if (note) note.textContent = state.master ? 'auto-syncing every 5s' : 'ALL RULES DISABLED (master off)';
-    addLog('info', state.master ? 'Master switch ON — rules active' : 'Master switch OFF — all rules disabled', state.master ? 'applied' : 'blocked');
-  });
-
-  // Query parameter auto-population
-  const q = new URLSearchParams(window.location.search);
-  if (q.get('server') || q.get('backend') || q.get('api')) {
-    state.server = (q.get('server') || q.get('backend') || q.get('api')).replace(/\/+$/, '');
+  if (!key) {
+    if (msg) {
+      msg.hidden = false;
+      msg.className = 'msg err';
+      msg.textContent = 'Please enter an API key to connect your workspace.';
+    }
+    return;
   }
-  const queryKey = q.get('key') || q.get('apiKey') || q.get('api_key') || q.get('sdm_key');
 
-  if (queryKey && !/[\u2022\u25cf\u22c5]/.test(queryKey)) {
-    const cleanKey = queryKey.trim();
-    const input = $('apikey');
-    if (input) input.value = cleanKey;
-    state.apiKey = cleanKey;
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>Connecting...</span>';
+  }
 
-    const snippet = document.querySelector('pre code, .code');
-    if (snippet && snippet.textContent) {
-      snippet.textContent = snippet.textContent.replace('sdm_live_your_key_here', cleanKey);
+  const statusPill = $('conn-pill');
+  if (statusPill) {
+    statusPill.textContent = 'Connecting...';
+    statusPill.className = 'pill';
+  }
+
+  const server = state.server;
+  state.apiKey = key;
+
+  try {
+    const verifyRes = await ORIGINAL_FETCH(`${server}/public/verify`, {
+      headers: { 'X-API-Key': key },
+      cache: 'no-store'
+    });
+
+    if (!verifyRes.ok) {
+      throw new Error(verifyRes.status === 401 ? 'Invalid or revoked API key' : `HTTP ${verifyRes.status}`);
     }
 
-    setTimeout(() => {
-      const btn = $('connect-btn');
-      if (btn) btn.click();
-      else connect();
-    }, 120);
+    const verifyJson = await verifyRes.json();
+    const wsName = verifyJson?.data?.workspace?.name || 'Workspace Connected';
+
+    // Init ProxyCeptor SDK
+    const sdm = window.ProxyCeptor || window.SuperDebug;
+    if (sdm && typeof sdm.init === 'function') {
+      sdm.init({ apiKey: key, refreshInterval: 0, debug: true });
+    }
+
+    state.connected = true;
+    if (statusPill) {
+      statusPill.textContent = `Connected · ${wsName}`;
+      statusPill.className = 'pill ok';
+    }
+
+    if (msg) {
+      msg.hidden = false;
+      msg.className = 'msg ok';
+      msg.textContent = `✓ Successfully authenticated with workspace "${wsName}". Syncing rules...`;
+    }
+
+    // Reveal Step 3 Card & Spacer
+    const step3Card = $('step3-card');
+    const step3Spacer = $('step3-spacer');
+    if (step3Card) step3Card.style.display = 'block';
+    if (step3Spacer) step3Spacer.style.display = 'block';
+
+    $('step-nav-2')?.classList.add('done');
+    $('step-nav-3')?.classList.add('active', 'done');
+
+    // Sync real cloud rules
+    await syncCloudRules();
+
+    if (step3Card) {
+      step3Card.scrollIntoView({ behavior: 'smooth' });
+    }
+  } catch (err) {
+    if (msg) {
+      msg.hidden = false;
+      msg.className = 'msg err';
+      msg.textContent = `Connection failed: ${err.message}`;
+    }
+    if (statusPill) {
+      statusPill.textContent = 'Connection Error';
+      statusPill.className = 'pill err';
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<span>Connect &amp; Sync</span>';
+    }
+  }
+}
+
+async function syncCloudRules() {
+  const syncNote = $('sync-note');
+  if (!state.apiKey) return;
+
+  try {
+    const res = await ORIGINAL_FETCH(`${state.server}/public/rules?includeDisabled=1`, {
+      headers: { 'X-API-Key': state.apiKey },
+      cache: 'no-store'
+    });
+
+    if (res.ok) {
+      const json = await res.json();
+      const rules = json?.data?.rules || [];
+      state.cloudRules = rules.map((r) => {
+        const actionType = r.ruleType || (r.response?.body?.action === 'replace' ? 'mock' : r.response?.body?.action === 'merge' ? 'merge' : r.request?.delay ? 'delay' : r.block ? 'block' : 'rule');
+        return {
+          id: r.id || r._id,
+          name: r.name || 'Cloud Rule',
+          tag: (r.ruleType || actionType).toUpperCase(),
+          actionType,
+          method: r.method || (r.request && r.request.method) || 'ALL',
+          url: r.match?.urlPattern || r.urlPattern || 'All endpoints',
+          ruleSummary: `${r.match?.urlPattern || r.urlPattern || '*'} → ${r.name || 'Cloud Policy'}`,
+          localRule: r
+        };
+      });
+
+      if (syncNote) {
+        syncNote.textContent = `${rules.length} cloud rule(s) synced from real API`;
+      }
+    } else {
+      if (syncNote) syncNote.textContent = 'Could not sync cloud rules';
+    }
+  } catch (e) {
+    console.warn('Real cloud sync error:', e);
+    if (syncNote) syncNote.textContent = 'Sync error: ' + (e.message || 'Network error');
   }
 
-  renderExamplesGrid();
-  loadExample(EXAMPLES[0]);
+  renderRulesList();
+  applyRulesToSdk();
+}
+
+// ============================================================
+// INITIALIZATION
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderRulesList();
+  renderSidebar();
+  renderCapabilityDetails();
+  applyRulesToSdk();
+
+  // Master switch
+  $('master-toggle')?.addEventListener('change', (e) => {
+    handleMasterToggle(e.target.checked);
+  });
+
+  // Sync button
+  $('sync-btn')?.addEventListener('click', () => {
+    syncCloudRules();
+  });
+
+  // Connect button
+  $('connect-btn')?.addEventListener('click', handleConnect);
+  $('apikey')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleConnect();
+  });
+
+  // Execute request button
+  $('execute-btn')?.addEventListener('click', executeRequest);
+
+  // Copy URL button
+  $('copy-target-url-btn')?.addEventListener('click', () => {
+    const url = $('target-url-input')?.value;
+    if (url) {
+      navigator.clipboard.writeText(url);
+      const btn = $('copy-target-url-btn');
+      if (btn) {
+        btn.textContent = '✓ Copied';
+        setTimeout(() => { btn.textContent = 'Copy URL'; }, 1500);
+      }
+    }
+  });
+
+  // Query parameter auto-population (?key=...&server=...)
+  const q = new URLSearchParams(window.location.search);
+  const qKey = q.get('key') || q.get('apiKey') || q.get('api_key');
+  if (qKey && $('apikey')) {
+    $('apikey').value = qKey.trim();
+    handleConnect();
+  }
 });

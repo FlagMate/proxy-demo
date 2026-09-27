@@ -18,192 +18,328 @@
     <div class="brand">
       <div class="logo">⚡</div>
       <span>proxyceptor</span>
-      <span class="brand-sub">SDK DEMO v2.5.0</span>
+      <span class="brand-sub">LIVE SANDBOX v2.5.0</span>
     </div>
     <div class="spacer"></div>
-    <span id="conn-pill" class="pill">Not connected</span>
+    <span id="conn-pill" class="pill ok">SDK In-Memory Ready</span>
     <a class="btn ghost sm" href="https://proxyceptor.com" target="_blank" rel="noopener">Home ↗</a>
     <a class="btn ghost sm" href="https://app.proxyceptor.com" target="_blank" rel="noopener">Dashboard ↗</a>
   </header>
 
-  <main class="wrap">
-    <!-- ===== Hero ===== -->
-    <section class="hero">
-      <h1>See how <span class="grad">ProxyCeptor SDK</span> reshapes your REST API — live.</h1>
-      <p class="lead">
-        Drop one script tag into any web or Smart TV app, connect your workspace API key, and the SDK
-        rewrites, mocks, merges, blocks, or delays your real API calls — all driven by rules you
-        manage in the cloud. No redeploys. Toggle rules here and watch requests change in real time.
+  <div class="container-wide">
+    <!-- Hero Banner -->
+    <section class="hero-section">
+      <h1>See how <span class="grad-cyan">ProxyCeptor SDK</span> intercepts your REST API — live.</h1>
+      <p class="hero-lead">
+        Drop one script tag into any web or TV app, connect your workspace API key, and the SDK
+        rewrites, mocks, merges, blocks, or delays real API traffic in memory with zero redeploys.
       </p>
     </section>
 
-    <!-- ===== Stepper ===== -->
+    <!-- Stepper Navigation -->
     <ol class="steps">
-      <li class="step done"><span class="n">1</span> Add the SDK</li>
-      <li class="step" id="step-connect"><span class="n">2</span> Connect API key</li>
-      <li class="step" id="step-rules"><span class="n">3</span> Rules sync from cloud</li>
-      <li class="step" id="step-run"><span class="n">4</span> Run a request</li>
+      <li class="step done" id="step-nav-1"><span class="n">1</span> Add SDK</li>
+      <li class="step active" id="step-nav-2"><span class="n">2</span> Connect API Key</li>
+      <li class="step" id="step-nav-3"><span class="n">3</span> Configure Rules</li>
+      <li class="step" id="step-nav-4"><span class="n">4</span> Real Execution Demo</li>
     </ol>
 
-    <!-- ===== Step 1: install ===== -->
-    <section class="card">
-      <div class="card-head">
-        <span class="badge">1</span>
-        <h2>Add the SDK to your app</h2>
+    <!-- ============================================================
+         STEP 1: LOAD JS SDK
+         ============================================================ -->
+    <section class="step-card" id="step1-card">
+      <div class="step-card-head">
+        <span class="step-badge">1</span>
+        <div>
+          <h2>Step 1: Load JS SDK</h2>
+          <div class="step-card-sub">Include the ProxyCeptor SDK bundle into your web page, SmartTV app, or hybrid container.</div>
+        </div>
+        <span class="spacer"></span>
+        <span class="pill ok">✓ Loaded in Window</span>
       </div>
-      <p class="muted">
-        One line. The SDK patches <code>fetch</code>, <code>XMLHttpRequest</code>, and
-        <code>sendBeacon</code> — and never breaks your app if a rule fails.
+
+      <p class="muted" style="margin-top: 6px;">
+        One script tag. The SDK patches <code>window.fetch</code>, <code>XMLHttpRequest</code>, and <code>sendBeacon</code> safely in-memory without breaking your app.
       </p>
-      <pre class="code"><span class="tok-punc">&lt;</span><span class="tok-tag">script</span> <span class="tok-attr">src</span>=<span class="tok-str">"https://proxyceptor.com/proxyceptor-sdk.js"</span><span class="tok-punc">&gt;&lt;/</span><span class="tok-tag">script</span><span class="tok-punc">&gt;</span>
-<span class="tok-punc">&lt;</span><span class="tok-tag">script</span><span class="tok-punc">&gt;</span>
+
+      <pre class="code-block"><span class="tok-tag">&lt;script</span> <span class="tok-attr">src</span>=<span class="tok-str">"https://proxyceptor.com/proxyceptor-sdk.js"</span><span class="tok-tag">&gt;&lt;/script&gt;</span>
+<span class="tok-tag">&lt;script&gt;</span>
   <span class="tok-fn">ProxyCeptor</span>.<span class="tok-fn">init</span>({
     <span class="tok-prop">apiKey</span>: <span class="tok-str">'sdm_live_your_key_here'</span>,
-    <span class="tok-prop">refreshInterval</span>: <span class="tok-num">300000</span>  <span class="tok-com">// live-sync cloud rules (300s)</span>
+    <span class="tok-prop">refreshInterval</span>: <span class="tok-num">300000</span>  <span class="tok-com">// Auto-sync remote cloud rules every 5 minutes</span>
   });
-<span class="tok-punc">&lt;/</span><span class="tok-tag">script</span><span class="tok-punc">&gt;</span></pre>
-      <p class="hint">✅ This sandbox has already loaded the live SDK bundle. Enter your key below to connect.</p>
+<span class="tok-tag">&lt;/script&gt;</span></pre>
+
+      <div class="hint-strip">
+        <span>💡</span>
+        <span>The real SDK bundle is already loaded and active in this sandbox window. Proceed to Step 2 to connect your workspace or use the 10 preset rules below.</span>
+      </div>
     </section>
 
-    <!-- ===== Step 2: connect ===== -->
-    <section class="card">
-      <div class="card-head">
-        <span class="badge">2</span>
-        <h2>Start the workflow — enter your API key</h2>
+    <div class="step-spacer"></div>
+
+    <!-- ============================================================
+         STEP 2: INIT API KEY
+         ============================================================ -->
+    <section class="step-card" id="step2-card">
+      <div class="step-card-head">
+        <span class="step-badge">2</span>
+        <div>
+          <h2>Step 2: Init API Key</h2>
+          <div class="step-card-sub">Connect your Cloud Workspace API key to sync rules remotely, or use built-in presets.</div>
+        </div>
       </div>
-      <p class="muted">
-        Grab a key from the dashboard → <b>API Keys</b>. The SDK connects to your workspace cloud backend automatically.
-      </p>
-      <div class="field-row">
+
+      <div class="field-row" style="margin-top: 14px;">
         <div class="field grow">
-          <label for="apikey">API Key</label>
-          <input id="apikey" placeholder="sdm_live_..." autocomplete="off" spellcheck="false" />
-          <input id="server" type="hidden" value="" />
+          <label>API Key</label>
+          <input id="apikey" placeholder="Paste your sdm_live_... API key from Workspace Settings" autocomplete="off" spellcheck="false" />
         </div>
-        <button id="connect-btn" class="btn primary">Connect &amp; start</button>
+        <button id="connect-btn" class="btn primary" style="height: 40px; padding: 0 20px;">
+          <span>Connect &amp; Sync</span>
+        </button>
       </div>
+
       <div id="connect-msg" class="msg" hidden></div>
+
+      <div class="sub-note" style="margin-top: 10px; color: #64748b; font-size: 12px;">
+        Enter your workspace API key to authenticate and load live cloud rules into Step 3.
+      </div>
     </section>
 
-    <!-- ===== Workflow (hidden until connected) ===== -->
-    <div id="workflow" hidden>
-      <!-- Step 3: rules -->
-      <section class="card">
-        <div class="card-head">
-          <span class="badge">3</span>
-          <h2>Your cloud rules</h2>
-          <span class="spacer"></span>
-          <span id="sync-note" class="sync-note">auto-syncing every 5s</span>
-          <button id="sync-btn" class="btn ghost sm">⟳ Sync now</button>
-        </div>
+    <div class="step-spacer" id="step3-spacer"></div>
 
-        <div class="master-bar">
-          <div>
-            <div class="master-title">Master switch</div>
-            <div class="muted sm">Global kill-switch — disable every rule at once (like the Chrome extension's master toggle).</div>
+    <!-- ============================================================
+         STEP 3: SHOWING RULES (MASTER SWITCH + EACH RULE TOGGLE)
+         (Rendered empty until real API Key is connected and synced)
+         ============================================================ -->
+    <section class="step-card" id="step3-card">
+      <div class="step-card-head">
+        <span class="step-badge">3</span>
+        <div>
+          <h2>Step 3: Active Rules &amp; Interception Policies</h2>
+          <div class="step-card-sub">Real cloud rules loaded from your workspace. Master switch and granular per-rule toggles update the SDK live.</div>
+        </div>
+        <span class="spacer"></span>
+        <span id="sync-note" class="sync-note">0 rules loaded · Awaiting API key</span>
+        <button id="sync-btn" class="btn ghost sm">↻ Sync Rules</button>
+      </div>
+
+      <!-- Master Switch Bar -->
+      <div class="master-bar">
+        <div>
+          <div class="master-title">Master Switch</div>
+          <div class="muted" style="font-size: 12px; margin-top: 2px;">
+            Global kill-switch — enable or disable every rule simultaneously.
           </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span id="master-status-badge" class="pill ok">Active</span>
           <label class="switch big">
             <input type="checkbox" id="master-toggle" checked />
             <span class="slider"></span>
           </label>
         </div>
+      </div>
 
-        <div id="rules-list" class="rules-list">
-          <div class="empty">No rules yet. Create one in the dashboard and hit “Sync now”.</div>
+      <!-- Rules List (Renders Real Cloud Rules from API Only) -->
+      <div id="rules-list" class="rules-list"></div>
+
+      <div class="hint-strip" style="margin-top: 14px;">
+        <span>⚡</span>
+        <span>Toggle any cloud rule above to activate or deactivate it in memory. Test real interception in Step 4 below.</span>
+      </div>
+    </section>
+
+    <div class="step-spacer"></div>
+
+    <!-- ============================================================
+         STEP 4: RULES REAL DEMO (LIVE INTERCEPTION EXECUTION)
+         ============================================================ -->
+    <section class="step-card" id="step4-card" style="padding: 0; overflow: hidden; border: 1px solid #1e293b;">
+      <div class="step-card-head" style="padding: 16px 20px 14px; border-bottom: 1px solid #1e293b; background: #080d1a;">
+        <span class="step-badge">4</span>
+        <div>
+          <h2>Step 4: Live Interception Execution (The Real Demo)</h2>
+          <div class="step-card-sub">Real wire requests. Pick a capability on the left, inspect parameters, and execute live.</div>
         </div>
-        <p class="hint">
-          💡 Edit a rule or add a new one in the <a href="https://app.proxyceptor.com" target="_blank" rel="noopener">dashboard</a> —
-          it appears here within 5 seconds. Per-rule switches apply instantly to the requests you send.
-        </p>
-      </section>
+        <span class="spacer"></span>
+        <span class="ld-sim-pill-live">● Live Wire Execution</span>
+      </div>
 
-      <!-- Step 4: run a request (10 Examples) -->
-      <section class="card" id="step4-card">
-        <div class="card-head">
-          <span class="badge">4</span>
-          <h2>Run a request — 10 Preset Examples (4.1 to 4.10)</h2>
-        </div>
-        <p class="muted">
-          Choose from 10 preset examples (<b>4.1</b> to <b>4.10</b>) with various combinations of <b>GET</b>,
-          <b>POST</b>, <b>Payload</b>, and <b>Headers</b>.
-          The HTTP method is locked per example. You can switch between <code>fetch()</code> and <code>XMLHttpRequest</code> transports.
-        </p>
-
-        <!-- 10 Interactive Examples Grid (4.1 to 4.10) -->
-        <div class="examples-grid" id="examples-grid"></div>
-
-        <!-- Active Example Runner Box -->
-        <div class="example-runner-box">
-          <div class="example-header">
-            <span class="badge sm" id="active-ex-num">4.1</span>
-            <strong id="active-ex-title">GET Basic Request</strong>
-            <span class="spacer"></span>
-            <span class="muted text-sm" id="active-ex-desc">Simple baseline GET request without custom headers or payload</span>
+      <!-- Main Mac Simulator Wide Container -->
+      <div class="ld-sim-wide">
+        <!-- Mac Header Bar -->
+        <div class="ld-sim-wide-header">
+          <div class="ld-sim-wide-title">
+            <div class="ld-mac-traffic">
+              <span class="mac-dot mac-red"></span>
+              <span class="mac-dot mac-yellow"></span>
+              <span class="mac-dot mac-green"></span>
+            </div>
+            <span>Feature Inspector: Select Capability on Left &amp; Execute Real Network Calls</span>
           </div>
-
-          <div class="field-row">
-            <div class="field grow">
-              <label for="req-url">Request URL</label>
-              <input id="req-url" value="https://jsonplaceholder.typicode.com/todos/1" />
-            </div>
-            <div class="field">
-              <label>Method <span class="lock-tag">🔒 locked</span></label>
-              <select id="req-method" disabled title="Method is locked for this example and cannot be changed">
-                <option>GET</option>
-                <option>POST</option>
-                <option>PUT</option>
-                <option>DELETE</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="req-transport">Transport</label>
-              <select id="req-transport">
-                <option value="fetch">fetch()</option>
-                <option value="xhr">XMLHttpRequest</option>
-              </select>
-            </div>
-            <button id="run-btn" class="btn primary">Send request</button>
-          </div>
-
-          <!-- Headers & Payload viewer -->
-          <div class="example-meta-row" id="example-meta-row">
-            <div class="meta-col">
-              <label>Request Headers <span id="meta-headers-count" class="meta-badge">None</span></label>
-              <pre class="code meta-code" id="meta-headers">(None)</pre>
-            </div>
-            <div class="meta-col">
-              <label>Request Payload <span id="meta-body-badge" class="meta-badge">None</span></label>
-              <pre class="code meta-code" id="meta-body">(None)</pre>
-            </div>
+          <div class="ld-sim-header-tags">
+            <span class="ld-sim-pill-device">All Devices Supported</span>
+            <span id="active-rule-pill" class="ld-sim-badge-neon">Active: Request Modify → Payload Modify</span>
           </div>
         </div>
 
-        <div class="response-head">
-          <span id="resp-mode" class="dot green"></span>
-          <span id="resp-label">Response</span>
-          <span class="spacer"></span>
-          <span class="compare-meta" id="resp-meta">—</span>
-        </div>
-        <pre id="resp" class="code out">Click "Send request" to execute.</pre>
-      </section>
+        <!-- Two-column Body: Left 10 Demos, Right Real Execution -->
+        <div class="ld-sim-wide-body">
+          <!-- LEFT SIDEBAR: 3 Pillars, 10 Capabilities (Identical to Landing Page) -->
+          <aside class="ld-sim-wide-sidebar">
+            <!-- Pillar 1: Request Modify -->
+            <div class="ld-pillar-category">
+              <div class="ld-pillar-title title-req">
+                <span class="pillar-icon">⇄</span>
+                <span>Request Modify</span>
+                <span class="pillar-count-badge">3</span>
+              </div>
+              <div id="pillar-req-items" class="ld-pillar-items"></div>
+            </div>
 
-      <!-- Activity log -->
-      <section class="card">
-        <div class="card-head">
-          <span class="badge">✦</span>
-          <h2>Interception log</h2>
-          <span class="spacer"></span>
-          <button id="clear-log" class="btn ghost sm">Clear</button>
+            <!-- Pillar 2: Response Modify -->
+            <div class="ld-pillar-category">
+              <div class="ld-pillar-title title-res">
+                <span class="pillar-icon">⚡</span>
+                <span>Response Modify</span>
+                <span class="pillar-count-badge">4</span>
+              </div>
+              <div id="pillar-res-items" class="ld-pillar-items"></div>
+            </div>
+
+            <!-- Pillar 3: Performance Modify -->
+            <div class="ld-pillar-category">
+              <div class="ld-pillar-title title-perf">
+                <span class="pillar-icon">⏱</span>
+                <span>Performance Modify</span>
+                <span class="pillar-count-badge">3</span>
+              </div>
+              <div id="pillar-perf-items" class="ld-pillar-items"></div>
+            </div>
+          </aside>
+
+          <!-- RIGHT SIDE: Real Execution with Visual Symmetry -->
+          <main class="ld-sim-wide-preview">
+            <!-- Target URL & Action Bar -->
+            <div class="ld-sim-target-bar">
+              <div class="ld-target-left">
+                <span id="target-method-badge" class="ld-badge-method-post">POST</span>
+                <input id="target-url-input" class="ld-target-url-input" spellcheck="false" />
+                <button id="copy-target-url-btn" class="btn ghost sm" style="padding: 2px 10px; font-size: 11px;">Copy URL</button>
+              </div>
+
+              <div class="ld-target-actions">
+                <div class="transport-wrap">
+                  <span style="font-size: 12px; font-weight: 700; color: #94a3b8;">Transport:</span>
+                  <select id="transport-select" class="transport-select">
+                    <option value="fetch">window.fetch()</option>
+                    <option value="xhr">XMLHttpRequest</option>
+                  </select>
+                </div>
+
+                <button id="execute-btn" class="btn primary execute-main-btn">
+                  <span>▶</span>
+                  <span>Send Live Request</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Side-by-Side Symmetrical Mac Windows -->
+            <div class="ld-compare-side-by-side">
+              <!-- Left Symmetrical Window: Request Parameters -->
+              <div class="mac-window">
+                <div class="mac-win-header">
+                  <div class="mac-win-left">
+                    <div class="ld-mac-traffic">
+                      <span class="mac-dot mac-red"></span>
+                      <span class="mac-dot mac-yellow"></span>
+                      <span class="mac-dot mac-green"></span>
+                    </div>
+                    <span class="mac-win-filename">request_parameters.json</span>
+                  </div>
+                  <span class="mac-win-badge badge-gray">REQUEST PARAMS</span>
+                </div>
+
+                <div class="mac-win-body">
+                  <!-- Top: Payload -->
+                  <div class="mac-section-block">
+                    <div class="mac-section-label">
+                      <span>Request Payload (JSON Body)</span>
+                      <span id="req-payload-badge" class="mini-tag">Active Body</span>
+                    </div>
+                    <div id="req-spec-payload" class="mac-code-box fixed-top-box"></div>
+                  </div>
+
+                  <!-- Bottom: Headers -->
+                  <div class="mac-section-block">
+                    <div class="mac-section-label">
+                      <span>Request Headers</span>
+                      <span id="req-headers-badge" class="mini-tag">Wire Headers</span>
+                    </div>
+                    <div id="req-spec-headers" class="mac-code-box fixed-bottom-box"></div>
+                  </div>
+                </div>
+
+                <div class="mac-win-footer">
+                  <span class="footer-icon">⇄</span>
+                  <span id="req-footer-text">Client wire request parameters configured for execution</span>
+                </div>
+              </div>
+
+              <!-- Right Symmetrical Window: Response Parameters -->
+              <div class="mac-window active-intercept">
+                <div class="mac-win-header">
+                  <div class="mac-win-left">
+                    <div class="ld-mac-traffic">
+                      <span class="mac-dot mac-red"></span>
+                      <span class="mac-dot mac-yellow"></span>
+                      <span class="mac-dot mac-green"></span>
+                    </div>
+                    <span class="mac-win-filename">response_parameters.json</span>
+                  </div>
+                  <span id="res-status-badge" class="mac-win-badge badge-neon">READY TO EXECUTE</span>
+                </div>
+
+                <div class="mac-win-body">
+                  <!-- Top: Response JSON -->
+                  <div class="mac-section-block">
+                    <div class="mac-section-label">
+                      <span>Response JSON (Body)</span>
+                      <span id="res-body-badge" class="mini-tag neon">Live Wire Response</span>
+                    </div>
+                    <div id="res-body-display" class="mac-code-box fixed-top-box">
+(Click "Send Live Request" to execute real network request and inspect live response body)
+                    </div>
+                  </div>
+
+                  <!-- Bottom: Response Headers -->
+                  <div class="mac-section-block">
+                    <div class="mac-section-label">
+                      <span>Response Headers</span>
+                      <span id="res-headers-badge" class="mini-tag">Captured Headers</span>
+                    </div>
+                    <div id="res-headers-display" class="mac-code-box fixed-bottom-box">
+(Click "Send Live Request" to capture wire response headers)
+                    </div>
+                  </div>
+                </div>
+
+                <div id="execution-footer" class="mac-win-footer">
+                  <span class="footer-icon">⚡</span>
+                  <span id="res-footer-text">Click "Send Live Request" above to execute through active ProxyCeptor engine</span>
+                </div>
+              </div>
+            </div>
+          </main>
         </div>
-        <div id="log" class="log">
-          <div class="log-empty muted">Requests you send will be logged here.</div>
-        </div>
-      </section>
-    </div>
-  </main>
+      </div>
+    </section>
+  </div>
 
   <footer class="footer">
-    <span>⚡ ProxyCeptor Interactive Sandbox</span>
+    <span>⚡ ProxyCeptor Interactive Sandbox — Real Network Interception &amp; Live Wire Inspection</span>
     <span class="spacer"></span>
     <a href="https://proxyceptor.com" target="_blank" rel="noopener">Website</a>
     <span style="margin: 0 8px;">·</span>
