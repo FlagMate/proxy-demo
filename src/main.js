@@ -1,5 +1,3 @@
-import './demo.css';
-
 /**
  * ProxyCeptor Live Interactive Sandbox v2.5.0
  * 4-Step Interactive Workflow + 10 Live Capabilities with Visual Symmetry
