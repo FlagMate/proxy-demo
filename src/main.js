@@ -330,7 +330,7 @@ function renderRulesList() {
     const msgText = !state.connected
       ? 'No cloud rules loaded yet. Enter your API key in <strong>Step 2</strong> above and click <strong>"Connect &amp; Sync"</strong> to load real rules from your workspace.'
       : 'No active cloud rules found in this workspace yet. Create rules in your <a href="https://app.proxyceptor.com" target="_blank" style="color: #00f0ff;">ProxyCeptor Dashboard</a> and click "↻ Sync Rules".';
-    
+
     container.innerHTML = `
       <div style="padding: 28px 20px; text-align: center; color: #94a3b8; border: 1px dashed #334155; border-radius: 9px; background: rgba(0, 0, 0, 0.2);">
         <div style="font-size: 20px; margin-bottom: 6px;">📋</div>
@@ -407,7 +407,7 @@ function handleMasterToggle(enabled) {
 }
 
 function applyRulesToSdk() {
-  const sdm = window.ProxyCeptor || window.SuperDebug;
+  const sdm = window.ProxyCeptor || window.ProxyCeptor;
   if (!sdm || typeof sdm.setRules !== 'function') return;
 
   if (!state.masterEnabled) {
@@ -655,7 +655,7 @@ async function executeFetch(url, method, headers, body) {
   let data = text;
   try {
     data = JSON.parse(text);
-  } catch (e) {}
+  } catch (e) { }
 
   return {
     status: res.status,
@@ -672,7 +672,7 @@ function executeXhr(url, method, headers, body) {
     xhr.open(method, url);
     if (headers) {
       Object.entries(headers).forEach(([k, v]) => {
-        try { xhr.setRequestHeader(k, v); } catch (e) {}
+        try { xhr.setRequestHeader(k, v); } catch (e) { }
       });
     }
 
@@ -693,7 +693,7 @@ function executeXhr(url, method, headers, body) {
         let data = text;
         try {
           data = JSON.parse(text);
-        } catch (e) {}
+        } catch (e) { }
 
         resolve({
           status: xhr.status,
@@ -803,7 +803,7 @@ async function handleConnect() {
     const wsName = verifyJson?.data?.workspace?.name || 'Workspace Connected';
 
     // Init ProxyCeptor SDK
-    const sdm = window.ProxyCeptor || window.SuperDebug;
+    const sdm = window.ProxyCeptor || window.ProxyCeptor;
     if (sdm && typeof sdm.init === 'function') {
       sdm.init({ apiKey: key, refreshInterval: 0, debug: true });
     }
