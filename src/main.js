@@ -55,6 +55,17 @@ export const CAPABILITIES = [
         body: {
           enabled: true,
           action: 'merge',
+          mode: 'merge-json',
+          mergeValue: JSON.stringify({
+            qa_test_run: 'sprint_42_regression',
+            force_ab_variant: 'checkout_v2_dark',
+            debug_mode_enabled: true
+          }),
+          value: JSON.stringify({
+            qa_test_run: 'sprint_42_regression',
+            force_ab_variant: 'checkout_v2_dark',
+            debug_mode_enabled: true
+          }),
           content: JSON.stringify({
             qa_test_run: 'sprint_42_regression',
             force_ab_variant: 'checkout_v2_dark',
@@ -304,10 +315,23 @@ function resolveServer() {
       return (q.get('server') || q.get('backend') || q.get('api')).replace(/\/+$/, '');
     }
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      return 'http://localhost:3000';
+      return window.location.origin;
     }
   }
   return 'https://api.proxyceptor.com';
+}
+
+function resolveDashboard() {
+  if (typeof window !== 'undefined' && window.location) {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('dashboard') || q.get('app')) {
+      return (q.get('dashboard') || q.get('app')).replace(/\/+$/, '');
+    }
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return 'http://localhost:5174';
+    }
+  }
+  return 'https://app.proxyceptor.com';
 }
 
 function getActiveCapability() {
@@ -327,7 +351,7 @@ function renderRulesList() {
   if (!state.connected || state.cloudRules.length === 0) {
     const msgText = !state.connected
       ? 'No cloud rules loaded yet. Enter your API key in <strong>Step 2</strong> above and click <strong>"Connect &amp; Sync"</strong> to load real rules from your workspace.'
-      : 'No active cloud rules found in this workspace yet. Create rules in your <a href="https://app.proxyceptor.com" target="_blank" style="color: #00f0ff;">ProxyCeptor Dashboard</a> and click "↻ Sync Rules".';
+      : `No active cloud rules found in this workspace yet. Create rules in your <a href="${resolveDashboard()}" target="_blank" style="color: #00f0ff;">ProxyCeptor Dashboard</a> and click "↻ Sync Rules".`;
 
     container.innerHTML = `
       <div style="padding: 28px 20px; text-align: center; color: #94a3b8; border: 1px dashed #334155; border-radius: 9px; background: rgba(0, 0, 0, 0.2);">
@@ -410,6 +434,14 @@ function applyRulesToSdk() {
 
   if (!state.masterEnabled) {
     sdm.setRules([]);
+    return;
+  }
+
+  if (state.connected && state.cloudRules.length > 0) {
+    const activeCloudRules = state.cloudRules
+      .filter((r) => !state.disabledRuleIds[r.id])
+      .map((r) => r.localRule || r);
+    sdm.setRules(activeCloudRules);
     return;
   }
 
@@ -934,11 +966,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Update all dashboard links dynamically
+  const dashUrl = resolveDashboard();
+  document.querySelectorAll('a[href*="app.proxyceptor.com"]').forEach((a) => {
+    a.href = dashUrl;
+  });
+
   // Query parameter auto-population (?key=...&server=...)
+  // Auto-populates the input box only; user still clicks 'Connect & Sync'
   const q = new URLSearchParams(window.location.search);
-  const qKey = q.get('key') || q.get('apiKey') || q.get('api_key');
+  const qKey = q.get('key') || q.get('apikey') || q.get('apiKey') || q.get('api_key');
   if (qKey && $('apikey')) {
     $('apikey').value = qKey.trim();
-    handleConnect();
   }
 });
