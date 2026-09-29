@@ -1,5 +1,5 @@
 /**
- * ProxyCeptor Live Interactive Sandbox v2.5.0
+ * ProxyCeptor Live Interactive Sandbox v2.6.0
  * 4-Step Interactive Workflow + 10 Live Capabilities with Visual Symmetry
  */
 
@@ -20,7 +20,7 @@ export const CAPABILITIES = [
     headers: {
       'Accept': 'application/json',
       'X-Client-Platform': 'SmartTV_Tizen',
-      'X-App-Version': 'v2.5.0'
+      'X-App-Version': 'v2.6.0'
     },
     body: null,
     ruleSummary: '*.m3u8 or /todos/1 -> Rewrite to staging-cdn.internal or /todos/2',

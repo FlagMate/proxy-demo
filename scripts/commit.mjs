@@ -14,7 +14,7 @@ const BRANCH = 'main';
 const folderRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const src = folderRoot;
 const dest = path.resolve(folderRoot, DEST_REL);
-const message = process.argv.slice(2).join(' ') || `feat(proxy-demo): sync v2.5.0 ${new Date().toISOString()}`;
+const message = process.argv.slice(2).join(' ') || `feat(proxy-demo): sync v2.6.0 ${new Date().toISOString()}`;
 const SKIP = new Set(['node_modules', 'dist', '.git']);
 
 if (!existsSync(dest)) {
