@@ -5,10 +5,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ProxyCeptor SDK — Live Interactive Sandbox</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-  <link rel="apple-touch-icon" href="/favicon-32.png" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="icon" href="./favicon.ico" sizes="16x16 32x32 48x48" />
+  <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+  <script src="./favicon-anim.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -22,8 +25,18 @@
   <!-- ===== Top bar ===== -->
   <header class="topbar">
     <div class="brand">
-      <div class="logo">⚡</div>
-      <span>proxyceptor</span>
+      <div class="logo-tile">
+        <div class="logo-tile-glow"></div>
+        <img
+          src="./brand/proxyceptor-mark.webp"
+          alt="ProxyCeptor"
+          width="24"
+          height="20"
+          class="logo-mark"
+          draggable="false"
+        />
+      </div>
+      <span class="brand-name">Proxy<span class="brand-accent">Ceptor</span></span>
       <span class="brand-sub">LIVE SANDBOX v2.6.0</span>
     </div>
     <div class="spacer"></div>
