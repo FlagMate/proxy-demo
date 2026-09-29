@@ -1,11 +1,11 @@
-/* SuperDebug / ProxyCeptor SDK v2.5.0 â€” ES5 UMD build. */
+/* SuperDebug / ProxyCeptor SDK v2.6.0 - ES5 UMD build. */
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 (function (root, factory) {
   var isBrowser = typeof window !== 'undefined';
   var existing = isBrowser && window.ProxyCeptor || typeof root !== 'undefined' && root && root.SuperDebug;
   if (existing) {
     if (typeof console !== 'undefined' && console.warn) {
-      console.warn('[SuperDebug] window.ProxyCeptor namespace already exists â€” discarding duplicate script execution.');
+      console.warn('[SuperDebug] window.ProxyCeptor namespace already exists - discarding duplicate script execution.');
     }
     if ((typeof module === "undefined" ? "undefined" : _typeof(module)) === 'object' && module.exports) {
       module.exports = existing;
@@ -71,6 +71,8 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     return target;
   }
   function safeParse(str, fallback) {
+    if (_typeof(str) === 'object' && str !== null) return str;
+    if (typeof str !== 'string') return fallback;
     try {
       return JSON.parse(str);
     } catch (e) {
@@ -258,6 +260,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
         return url;
       }
     }
+    return url;
   }
   function applyRequestHeaders(headersInput, rule, originalUrl) {
     var headerOps = Array.isArray(rule.request && rule.request.headers) ? rule.request.headers : rule.request && rule.request.headers && rule.request.headers.modify;
@@ -317,14 +320,15 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     try {
       if (mode === 'merge-json' || mode === 'merge') {
         var target = safeParse(originalBodyStr, {}) || {};
-        var delta = safeParse(body.mergeValue || body.value, {});
+        var rawDelta = body.mergeValue != null && body.mergeValue !== '' ? body.mergeValue : body.value != null && body.value !== '' ? body.value : body.content;
+        var delta = safeParse(rawDelta, {});
         return JSON.stringify(deepMerge(target, delta));
       }
       if (mode === 'delete') {
         return '';
       }
-      var val = body.value != null && body.value !== '' ? body.value : body.mergeValue;
-      return val != null ? String(val) : originalBodyStr;
+      var val = body.value != null && body.value !== '' ? body.value : body.mergeValue != null && body.mergeValue !== '' ? body.mergeValue : body.content;
+      return val != null ? typeof val === 'string' ? val : JSON.stringify(val) : originalBodyStr;
     } catch (e) {
       log.warn('request body transform failed, using original:', e && e.message);
       return originalBodyStr;
@@ -335,11 +339,13 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     if (!body || !body.enabled) return originalBodyStr;
     try {
       if (body.mode === 'replace' || body.mode === 'mock') {
-        return body.value != null ? String(body.value) : originalBodyStr;
+        var replaceVal = body.value != null && body.value !== '' ? body.value : body.mergeValue != null && body.mergeValue !== '' ? body.mergeValue : body.content;
+        return replaceVal != null ? typeof replaceVal === 'string' ? replaceVal : JSON.stringify(replaceVal) : originalBodyStr;
       }
-      if (body.mode === 'merge-json') {
+      if (body.mode === 'merge-json' || body.mode === 'merge') {
         var target = safeParse(originalBodyStr, {}) || {};
-        var delta = safeParse(body.mergeValue || body.value, {});
+        var rawDelta = body.mergeValue != null && body.mergeValue !== '' ? body.mergeValue : body.value != null && body.value !== '' ? body.value : body.content;
+        var delta = safeParse(rawDelta, {});
         return JSON.stringify(deepMerge(target, delta));
       }
       if (body.mode === 'js-transform' && body.jsTransform) {
@@ -542,7 +548,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
               }
               try {
                 setRequestHeader.call(self, op.name, val);
-              } catch (e) { }
+              } catch (e) {}
             });
           }
         });
@@ -553,7 +559,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
             if (apiKey) {
               setRequestHeader.call(self, 'x-sdm-api-key', apiKey);
             }
-          } catch (e) { }
+          } catch (e) {}
         }
         var outBody = body;
         var xhrMethod = String(sdm.method || 'GET').toUpperCase();
@@ -641,7 +647,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     log.info('Interceptors installed');
   }
   var __BAKED_SERVER_URL__ = "https://api.proxyceptor.com";
-  var __BAKED_SDK_VERSION__ = "2.5.0";
+  var __BAKED_SDK_VERSION__ = "2.6.0";
   var SDK_VERSION = typeof __BAKED_SDK_VERSION__ !== 'undefined' && __BAKED_SDK_VERSION__.indexOf('__') !== 0 ? __BAKED_SDK_VERSION__ : '2.0.1';
   function resolveDefaultServerUrl() {
     if (typeof window !== 'undefined' && window.__SUPERDEBUG_SERVER_URL__) {
@@ -650,7 +656,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     try {
       var stored = typeof window !== 'undefined' && localStorage.getItem('sdm_server_url');
       if (stored) return stored;
-    } catch (e) { }
+    } catch (e) {}
     if (__BAKED_SERVER_URL__ && __BAKED_SERVER_URL__.indexOf('__') !== 0) {
       return __BAKED_SERVER_URL__;
     }
@@ -776,7 +782,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
       return SuperDebug.refresh();
     },
     loadAllRules: function loadAllRules() {
-      log.info('loadAllRules() called â€” forcing full cloud rule re-fetch');
+      log.info('loadAllRules() called — forcing full cloud rule re-fetch');
       return SuperDebug.refresh().then(function (result) {
         if (state.ui && typeof state.ui.update === 'function') state.ui.update();
         return result;
@@ -834,7 +840,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
         state.window = self;
       }
       if (!options.apiKey && !(options.rules && options.rules.length)) {
-        log.warn('init() called without an apiKey â€” using local or pre-seeded rules.');
+        log.warn('init() called without an apiKey — using local or pre-seeded rules.');
       }
       var serverBaseUrl = options.serverUrl || options.serverBaseUrl || DEFAULT_SERVER_URL;
       state.proxyEnabled = typeof options.enableProxy === 'boolean' ? options.enableProxy : true;
@@ -902,6 +908,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
   SuperDebug.DEFAULT_SERVER_URL = DEFAULT_SERVER_URL;
   SuperDebug.version = SDK_VERSION;
   if (typeof window !== 'undefined') {
+    window.ProxyCeptor = SuperDebug;
     window.ProxyCeptor = SuperDebug;
   }
   __SDK_DEFAULT__ = SuperDebug;
